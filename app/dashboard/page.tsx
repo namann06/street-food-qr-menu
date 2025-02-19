@@ -89,6 +89,24 @@ export default function Dashboard() {
                   </div>
                   <div className="flex gap-2">
                     <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`/api/menu/${shop?._id}/items/${item._id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ...item, available: !item.available })
+                          });
+                          if (res.ok) {
+                            setMenuItems(items =>
+                              items.map(i =>
+                                i._id === item._id ? { ...i, available: !i.available } : i
+                              )
+                            );
+                          }
+                        } catch (error) {
+                          console.error('Error updating availability:', error);
+                        }
+                      }}
                       className={`px-3 py-1 rounded ${
                         item.available
                           ? 'bg-green-600 hover:bg-green-700'

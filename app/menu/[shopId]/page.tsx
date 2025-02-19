@@ -100,9 +100,7 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                         {item.description}
                       </p>
                     )}
-                  </div>
-                  <div className="text-green-500 font-semibold">
-                    ₹{item.price}
+                    <p className="text-green-500 mt-1">₹{item.price.toFixed(2)}</p>
                   </div>
                 </div>
               ))}
