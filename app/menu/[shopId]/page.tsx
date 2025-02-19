@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 interface MenuItem {
   _id: string;
@@ -17,7 +17,9 @@ interface Shop {
   address: string;
 }
 
-export default function MenuPage({ params }: { params: { shopId: string } }) {
+export default function MenuPage({ params }: { params: Promise<{ shopId: string }> }) {
+  const { shopId } = use(params); // Unwrap params
+
   const [shop, setShop] = useState<Shop | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,7 @@ export default function MenuPage({ params }: { params: { shopId: string } }) {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
-        const res = await fetch(`/api/menu/${params.shopId}`);
+        const res = await fetch(`/api/menu/${shopId}`);
         if (!res.ok) {
           throw new Error('Failed to fetch menu');
         }
@@ -40,8 +42,10 @@ export default function MenuPage({ params }: { params: { shopId: string } }) {
       }
     };
 
-    fetchMenu();
-  }, [params.shopId]);
+    if (shopId) {
+      fetchMenu();
+    }
+  }, [shopId]);
 
   if (loading) {
     return (
