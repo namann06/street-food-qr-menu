@@ -4,14 +4,16 @@ import Shop from '@/models/Shop';
 import MenuItem from '@/models/MenuItem';
 
 export async function GET(
-  req: Request,
-  { params }: { params: { shopId: string } }
+  request: Request,
+  context: { params: { shopId: string } }
 ) {
+  const { shopId } = context.params;
+  
   try {
     await connectDB();
 
     // Find the shop
-    const shop = await Shop.findById(params.shopId);
+    const shop = await Shop.findById(shopId);
     
     if (!shop) {
       return NextResponse.json(
@@ -21,7 +23,7 @@ export async function GET(
     }
 
     // Find all menu items for this shop
-    const menuItems = await MenuItem.find({ shop: params.shopId });
+    const menuItems = await MenuItem.find({ shop: shopId });
 
     return NextResponse.json({
       shop: {
