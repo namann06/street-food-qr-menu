@@ -28,21 +28,55 @@ export default function EditMenuItemPage({
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchMenuItem = async () => {
+    const createShopIfNotExists = async () => {
       try {
-        const res = await fetch(`/api/shop/menu/${id}`);
-        if (!res.ok) throw new Error('Failed to fetch menu item');
+        const shopRes = await fetch('/api/shop');
+        
+        if (shopRes.status === 404) {
+          // No shop exists, create a default shop
+          const createShopRes = await fetch('/api/shop', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: `${session?.user?.name}'s Shop`,
+              description: 'My first shop',
+            }),
+          });
+
+          if (!createShopRes.ok) {
+            throw new Error('Failed to create shop');
+          }
+        } else if (!shopRes.ok) {
+          throw new Error('Error checking shop');
+        }
+
+        // Now fetch the menu item
+        const res = await fetch(`/api/shop/menu/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Failed to fetch menu item');
+        }
         const data = await res.json();
         setMenuItem(data);
       } catch (err) {
-        setError('Error loading menu item');
+        console.error(err);
+        setError(err instanceof Error ? err.message : 'Error loading menu item');
       } finally {
         setLoading(false);
       }
     };
 
     if (session) {
-      fetchMenuItem();
+      createShopIfNotExists();
     }
   }, [session, id]);
 
@@ -59,15 +93,20 @@ export default function EditMenuItemPage({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(menuItem),
       });
 
-      if (!res.ok) throw new Error('Failed to update menu item');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to update menu item');
+      }
 
       router.push('/dashboard');
       router.refresh();
     } catch (err) {
-      setError('Error updating menu item');
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Error updating menu item');
     } finally {
       setSaving(false);
     }
@@ -85,6 +124,20 @@ export default function EditMenuItemPage({
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         Please sign in to access this page.
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center flex-col">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button 
+          onClick={() => router.back()}
+          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
+        >
+          Go Back
+        </button>
       </div>
     );
   }

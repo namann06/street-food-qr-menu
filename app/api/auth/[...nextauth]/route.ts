@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
+import Shop from '@/models/Shop';
 import { JWT } from 'next-auth/jwt';
 
 interface CustomUser {
@@ -10,6 +11,7 @@ interface CustomUser {
   email: string;
   name: string;
   role: string;
+  shopId?: string;
 }
 
 export const authOptions: AuthOptions = {
@@ -38,11 +40,15 @@ export const authOptions: AuthOptions = {
           throw new Error('Invalid password');
         }
 
+        // Find the shop associated with this user
+        const shop = await Shop.findOne({ owner: user._id });
+
         return {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
           role: user.role,
+          shopId: shop ? shop._id.toString() : undefined,
         };
       }
     })
@@ -55,6 +61,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.shopId = (user as CustomUser).shopId;
       }
       return token;
     },
@@ -62,6 +69,7 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.shopId = token.shopId as string | undefined;
       }
       return session;
     },
