@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 
-type MongooseConnection = {
+interface MongooseConnection {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
-};
+}
 
 declare global {
-  let mongoose: MongooseConnection | undefined;
+  var mongoose: MongooseConnection;
 }
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/street-food-qr';
@@ -15,11 +15,15 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-let cached: MongooseConnection = global.mongoose || { conn: null, promise: null };
-
+// Initialize the cached connection object
 if (!global.mongoose) {
-  global.mongoose = cached;
+  global.mongoose = {
+    conn: null,
+    promise: null
+  };
 }
+
+const cached = global.mongoose;
 
 async function connectDB(): Promise<typeof mongoose> {
   if (cached.conn) {

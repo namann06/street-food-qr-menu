@@ -1,12 +1,12 @@
 import { NextRequest } from 'next/server';
-import { Order } from '@/models/Order';
+import { IOrder } from '@/models/Order';
 
 // Store connected clients for each shop
 const clients = new Map<string, Set<(data: string) => void>>();
 
 interface NotificationData {
   type: 'connected' | 'new_order';
-  order?: Order;
+  order?: IOrder;
 }
 
 export async function GET(

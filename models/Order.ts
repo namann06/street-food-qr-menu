@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-interface IOrder {
+export interface IOrder {
   shopId: mongoose.Types.ObjectId;
   orderId: string;
   items: Array<{
