@@ -35,20 +35,22 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000, // Timeout after 10 seconds
-      socketTimeoutMS: 20000, // Timeout after 20 seconds
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
       maxPoolSize: 10,
       minPoolSize: 5,
       maxIdleTimeMS: 10000,
-      connectTimeoutMS: 10000,
+      heartbeatFrequencyMS: 5000,
     };
 
     try {
       cached.promise = mongoose.connect(MONGODB_URI!, opts);
       console.log('MongoDB connection initiated');
     } catch (error) {
+      cached.promise = null;
       console.error('MongoDB connection error:', error);
-      throw error;
+      throw new Error('Failed to connect to MongoDB. Please try again later.');
     }
   }
 
@@ -56,11 +58,22 @@ async function connectDB() {
     cached.conn = await cached.promise;
     console.log('MongoDB connected successfully');
     return cached.conn;
-  } catch (e) {
-    console.error('MongoDB connection failed:', e);
+  } catch (error) {
     cached.promise = null;
-    throw e;
+    console.error('MongoDB connection failed:', error);
+    throw new Error('Failed to establish MongoDB connection. Please try again later.');
   }
 }
+
+// Add event listeners for connection issues
+mongoose.connection.on('error', (error) => {
+  console.error('MongoDB connection error:', error);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+  cached.conn = null;
+  cached.promise = null;
+});
 
 export default connectDB;

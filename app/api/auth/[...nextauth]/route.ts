@@ -28,21 +28,53 @@ export const authOptions: AuthOptions = {
             throw new Error('Please provide email and password');
           }
 
-          await connectDB();
-          const user = await User.findOne({ email: credentials.email }).maxTimeMS(5000);
+          // Connect to DB with timeout
+          try {
+            await Promise.race([
+              connectDB(),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Database connection timeout')), 5000)
+              )
+            ]);
+          } catch (error) {
+            console.error('Database connection error:', error);
+            throw new Error('Unable to connect to database. Please try again.');
+          }
+
+          // Find user with timeout
+          let user;
+          try {
+            user = await User.findOne({ email: credentials.email }).maxTimeMS(3000).exec();
+          } catch (error) {
+            console.error('User lookup error:', error);
+            throw new Error('Error looking up user. Please try again.');
+          }
 
           if (!user) {
             throw new Error('No user found with this email');
           }
 
-          const isValid = await bcrypt.compare(credentials.password, user.password);
+          // Verify password
+          let isValid;
+          try {
+            isValid = await bcrypt.compare(credentials.password, user.password);
+          } catch (error) {
+            console.error('Password verification error:', error);
+            throw new Error('Error verifying password. Please try again.');
+          }
 
           if (!isValid) {
             throw new Error('Invalid password');
           }
 
-          // Find the shop associated with this user
-          const shop = await Shop.findOne({ owner: user._id }).maxTimeMS(5000);
+          // Find shop with timeout
+          let shop;
+          try {
+            shop = await Shop.findOne({ owner: user._id }).maxTimeMS(3000).exec();
+          } catch (error) {
+            console.error('Shop lookup error:', error);
+            // Don't throw here, shop is optional
+          }
 
           return {
             id: user._id.toString(),
