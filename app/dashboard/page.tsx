@@ -11,6 +11,7 @@ interface MenuItem {
   price: number;
   description: string;
   available: boolean;
+  category?: string;
 }
 
 interface Shop {
@@ -24,6 +25,8 @@ export default function Dashboard() {
   const [shop, setShop] = useState<Shop | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     const fetchShopData = async () => {
@@ -76,8 +79,56 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-2 gap-8">
           <div>
             <h2 className="text-xl font-semibold mb-4">Menu Items</h2>
+            
+            {/* Search and Filter Section */}
+            <div className="mb-6 space-y-4">
+              <input
+                type="text"
+                placeholder="Search menu items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
+              />
+              
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSelectedCategory('all')}
+                  className={`px-4 py-2 rounded-lg ${
+                    selectedCategory === 'all'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  All
+                </button>
+                {Array.from(new Set(menuItems.map(item => item.category || 'Uncategorized'))).map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 rounded-lg ${
+                      selectedCategory === category
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-4">
-              {menuItems.map((item) => (
+              {menuItems
+                .filter(item => {
+                  const matchesSearch = 
+                    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    item.description.toLowerCase().includes(searchQuery.toLowerCase());
+                  const matchesCategory = 
+                    selectedCategory === 'all' || 
+                    (item.category || 'Uncategorized') === selectedCategory;
+                  return matchesSearch && matchesCategory;
+                })
+                .map((item) => (
                 <div
                   key={item._id}
                   className="bg-gray-800 p-4 rounded-lg flex justify-between items-center"
