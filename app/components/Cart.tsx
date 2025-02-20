@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Script from 'next/script';
 
 interface CartItem {
   _id: string;
@@ -11,13 +12,87 @@ interface CartProps {
   items: CartItem[];
   onUpdateQuantity: (itemId: string, newQuantity: number) => void;
   onRemoveItem: (itemId: string) => void;
-  onCheckout: () => void;
+  shopId: string;
+  upiId?: string;
 }
 
-export default function Cart({ items, onUpdateQuantity, onRemoveItem, onCheckout }: CartProps) {
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+export default function Cart({ items, onUpdateQuantity, onRemoveItem, shopId, upiId = "your-upi@bank" }: CartProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [tableNumber, setTableNumber] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState('');
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'counter' | null>(null);
+  const [orderPlaced, setOrderPlaced] = useState(false);
 
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handlePlaceOrder = async (paymentType: 'upi' | 'counter') => {
+    if (!tableNumber) {
+      setError('Please enter your table number');
+      return;
+    }
+    
+    setError('');
+    setIsProcessing(true);
+
+    try {
+      // Create order
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            _id: item._id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          total,
+          tableNumber,
+          paymentMethod: paymentType,
+          shopId
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create order');
+      }
+
+      if (!data.orderId) {
+        throw new Error('No order ID returned');
+      }
+
+      // Clear cart and reset states
+      items.forEach(item => onRemoveItem(item._id));
+      setTableNumber('');
+      setShowPaymentOptions(false);
+      setPaymentMethod(null);
+      setOrderPlaced(true);
+      
+      // Show different messages based on payment method
+      if (paymentType === 'upi') {
+        alert(`Please pay ₹${total.toFixed(2)} to UPI ID: ${upiId}\nOrder ID: ${data.orderId}\nShow this message to the counter.`);
+      } else {
+        alert(`Order ID: ${data.orderId}\nPlease pay ₹${total.toFixed(2)} at the counter.`);
+      }
+      
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Order error:', error);
+      setError(error instanceof Error ? error.message : 'Error placing order. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -77,17 +152,69 @@ export default function Cart({ items, onUpdateQuantity, onRemoveItem, onCheckout
                 ))}
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-700">
-                <div className="flex justify-between text-white mb-4">
-                  <span>Total:</span>
-                  <span className="font-semibold">₹{total.toFixed(2)}</span>
+              <div className="mt-4 space-y-4">
+                {/* Table Number Input */}
+                <div>
+                  <label htmlFor="tableNumber" className="block text-sm font-medium text-gray-400 mb-1">
+                    Table Number
+                  </label>
+                  <input
+                    type="text"
+                    id="tableNumber"
+                    value={tableNumber}
+                    onChange={(e) => setTableNumber(e.target.value)}
+                    placeholder="Enter your table number"
+                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-blue-500"
+                  />
                 </div>
-                <button
-                  onClick={onCheckout}
-                  className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
-                >
-                  Checkout
-                </button>
+
+                {error && (
+                  <p className="text-red-500 text-sm">{error}</p>
+                )}
+
+                <div className="pt-4 border-t border-gray-700">
+                  <div className="flex justify-between text-white mb-4">
+                    <span>Total:</span>
+                    <span className="font-semibold">₹{total.toFixed(2)}</span>
+                  </div>
+
+                  {!showPaymentOptions ? (
+                    <button
+                      onClick={() => setShowPaymentOptions(true)}
+                      disabled={isProcessing || items.length === 0}
+                      className={`w-full py-2 rounded ${
+                        isProcessing || items.length === 0
+                          ? 'bg-gray-600 cursor-not-allowed'
+                          : 'bg-blue-500 hover:bg-blue-600'
+                      } text-white transition-colors`}
+                    >
+                      Place Order
+                    </button>
+                  ) : (
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => handlePlaceOrder('upi')}
+                        disabled={isProcessing}
+                        className="w-full py-2 rounded bg-green-600 hover:bg-green-700 text-white transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                      >
+                        Pay with UPI
+                      </button>
+                      <button
+                        onClick={() => handlePlaceOrder('counter')}
+                        disabled={isProcessing}
+                        className="w-full py-2 rounded bg-orange-600 hover:bg-orange-700 text-white transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                      >
+                        Pay at Counter
+                      </button>
+                      <button
+                        onClick={() => setShowPaymentOptions(false)}
+                        className="w-full py-2 rounded bg-gray-700 hover:bg-gray-600 text-white transition-colors"
+                      >
+                        Back
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}

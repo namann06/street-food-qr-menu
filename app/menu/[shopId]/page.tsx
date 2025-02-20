@@ -23,6 +23,7 @@ interface Shop {
   _id: string;
   name: string;
   address: string;
+  upiId: string;
 }
 
 export default function MenuPage({ params }: { params: Promise<{ shopId: string }> }) {
@@ -236,7 +237,8 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
         items={cartItems}
         onUpdateQuantity={updateCartItemQuantity}
         onRemoveItem={removeCartItem}
-        onCheckout={handleCheckout}
+        shopId={shopId}
+        upiId={shop?.upiId}
       />
     </div>
   );

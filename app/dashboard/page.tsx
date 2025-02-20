@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import Link from 'next/link';
+import OrdersList from '../components/OrdersList';
 
 interface MenuItem {
   _id: string;
@@ -77,46 +78,31 @@ export default function Dashboard() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
+          {/* Menu Items Section */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Menu Items</h2>
-            
-            {/* Search and Filter Section */}
-            <div className="mb-6 space-y-4">
-              <input
-                type="text"
-                placeholder="Search menu items..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
-              />
-              
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setSelectedCategory('all')}
-                  className={`px-4 py-2 rounded-lg ${
-                    selectedCategory === 'all'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }`}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Menu Items</h2>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Search items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-3 py-1 bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500"
+                />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-3 py-1 bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500"
                 >
-                  All
-                </button>
-                {Array.from(new Set(menuItems.map(item => item.category || 'Uncategorized'))).map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-lg ${
-                      selectedCategory === category
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
+                  <option value="all">All Categories</option>
+                  {Array.from(new Set(menuItems.map(item => item.category || 'Uncategorized'))).map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
               </div>
             </div>
-
+            
             <div className="space-y-4">
               {menuItems
                 .filter(item => {
@@ -129,68 +115,74 @@ export default function Dashboard() {
                   return matchesSearch && matchesCategory;
                 })
                 .map((item) => (
-                <div
-                  key={item._id}
-                  className="bg-gray-800 p-4 rounded-lg flex justify-between items-center"
-                >
-                  <div>
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-gray-400">{item.description}</p>
-                    <p className="text-green-500">₹{item.price}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={async () => {
-                        try {
-                          const res = await fetch(`/api/menu/${shop?._id}/items/${item._id}`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ ...item, available: !item.available })
-                          });
-                          if (res.ok) {
-                            setMenuItems(items =>
-                              items.map(i =>
-                                i._id === item._id ? { ...i, available: !i.available } : i
-                              )
-                            );
+                  <div
+                    key={item._id}
+                    className="bg-gray-800 p-4 rounded-lg flex justify-between items-center"
+                  >
+                    <div>
+                      <h3 className="font-medium">{item.name}</h3>
+                      <p className="text-gray-400">{item.description}</p>
+                      <p className="text-green-500">₹{item.price}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`/api/menu/${shop?._id}/items/${item._id}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ ...item, available: !item.available })
+                            });
+                            if (res.ok) {
+                              setMenuItems(items =>
+                                items.map(i =>
+                                  i._id === item._id ? { ...i, available: !i.available } : i
+                                )
+                              );
+                            }
+                          } catch (error) {
+                            console.error('Error updating availability:', error);
                           }
-                        } catch (error) {
-                          console.error('Error updating availability:', error);
-                        }
-                      }}
-                      className={`px-3 py-1 rounded ${
-                        item.available
-                          ? 'bg-green-600 hover:bg-green-700'
-                          : 'bg-red-600 hover:bg-red-700'
-                      }`}
-                    >
-                      {item.available ? 'Available' : 'Unavailable'}
-                    </button>
-                    <Link
-                      href={`/dashboard/menu/edit/${item._id}`}
-                      className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
-                    >
-                      Edit
-                    </Link>
+                        }}
+                        className={`px-3 py-1 rounded ${
+                          item.available
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-red-600 hover:bg-red-700'
+                        }`}
+                      >
+                        {item.available ? 'Available' : 'Unavailable'}
+                      </button>
+                      <Link
+                        href={`/dashboard/menu/edit/${item._id}`}
+                        className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+                      >
+                        Edit
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 
-          <div>
-            <h2 className="text-xl font-semibold mb-4">QR Code</h2>
-            <div className="bg-white p-8 rounded-lg inline-block">
-              <QRCodeSVG
-                value={`${process.env.NEXT_PUBLIC_APP_URL}/menu/${shop?._id}`}
-                size={200}
-              />
-            </div>
-            <p className="mt-4 text-gray-400">
-              Display this QR code at your shop for customers to scan and view your
-              menu
-            </p>
+          {/* Orders Section */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold mb-4">Orders</h2>
+            {shop && <OrdersList shopId={shop._id} />}
           </div>
+        </div>
+
+        {/* QR Code Section */}
+        <div className="mt-8 p-6 bg-gray-800 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4">QR Code</h2>
+          <div className="bg-white p-8 rounded-lg inline-block">
+            <QRCodeSVG
+              value={`${process.env.NEXT_PUBLIC_APP_URL}/menu/${shop?._id}`}
+              size={200}
+            />
+          </div>
+          <p className="mt-4 text-gray-400">
+            Display this QR code at your shop for customers to scan and view your menu
+          </p>
         </div>
       </div>
     </div>
