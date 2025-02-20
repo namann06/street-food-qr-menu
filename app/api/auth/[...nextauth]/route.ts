@@ -23,44 +23,53 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Please provide email and password');
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error('Please provide email and password');
+          }
+
+          await connectDB();
+          const user = await User.findOne({ email: credentials.email }).maxTimeMS(5000);
+
+          if (!user) {
+            throw new Error('No user found with this email');
+          }
+
+          const isValid = await bcrypt.compare(credentials.password, user.password);
+
+          if (!isValid) {
+            throw new Error('Invalid password');
+          }
+
+          // Find the shop associated with this user
+          const shop = await Shop.findOne({ owner: user._id }).maxTimeMS(5000);
+
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            shopId: shop ? shop._id.toString() : undefined,
+          };
+        } catch (error) {
+          console.error('Authorization error:', error);
+          throw error;
         }
-
-        await connectDB();
-        const user = await User.findOne({ email: credentials.email });
-
-        if (!user) {
-          throw new Error('No user found with this email');
-        }
-
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-
-        if (!isValid) {
-          throw new Error('Invalid password');
-        }
-
-        // Find the shop associated with this user
-        const shop = await Shop.findOne({ owner: user._id });
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          shopId: shop ? shop._id.toString() : undefined,
-        };
       }
     })
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.role = (user as CustomUser).role;
         token.shopId = (user as CustomUser).shopId;
       }
       return token;
@@ -72,13 +81,14 @@ export const authOptions: AuthOptions = {
         session.user.shopId = token.shopId as string | undefined;
       }
       return session;
-    },
+    }
   },
   pages: {
     signIn: '/auth/signin',
+    error: '/auth/error',
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
