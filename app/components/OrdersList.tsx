@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useOrderEvents } from '@/hooks/useOrderEvents';
 
 interface OrderItem {
   _id: string;
@@ -42,11 +43,16 @@ export default function OrdersList({ shopId }: OrdersListProps) {
     }
   };
 
+  // Handle new orders from SSE
+  const handleNewOrder = (order: Order) => {
+    setOrders(prevOrders => [order, ...prevOrders]);
+  };
+
+  // Use SSE for real-time updates
+  useOrderEvents(shopId, handleNewOrder);
+
   useEffect(() => {
     fetchOrders();
-    // Set up polling to check for new orders every 30 seconds
-    const interval = setInterval(fetchOrders, 30000);
-    return () => clearInterval(interval);
   }, [shopId]);
 
   const updateOrderStatus = async (orderId: string, newStatus: 'completed' | 'cancelled') => {

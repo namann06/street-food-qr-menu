@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Order from '@/models/Order';
 import mongoose from 'mongoose';
+import { notifyShopClients } from './[shopId]/events/route';
 
 // Function to generate a unique order ID
 async function generateOrderId() {
@@ -49,7 +50,14 @@ export async function POST(request: Request) {
     // Validate required fields
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { error: 'Invalid items' },
+        { error: 'Items array is required and must not be empty' },
+        { status: 400 }
+      );
+    }
+
+    if (!total || typeof total !== 'number' || total <= 0) {
+      return NextResponse.json(
+        { error: 'Valid total amount is required' },
         { status: 400 }
       );
     }
@@ -63,49 +71,43 @@ export async function POST(request: Request) {
 
     if (!paymentMethod || !['upi', 'counter'].includes(paymentMethod)) {
       return NextResponse.json(
-        { error: 'Invalid payment method' },
+        { error: 'Valid payment method (upi or counter) is required' },
         { status: 400 }
       );
     }
 
     if (!shopId || !mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
-        { error: 'Invalid shop ID' },
+        { error: 'Valid shop ID is required' },
         { status: 400 }
       );
     }
 
-    // Generate unique order ID
-    console.log('Generating order ID...');
+    // Generate order ID
     const orderId = await generateOrderId();
-    console.log('Generated order ID:', orderId);
 
     // Create new order
-    console.log('Creating order in database...');
     const order = await Order.create({
-      shopId: new mongoose.Types.ObjectId(shopId),
       orderId,
-      items: items.map(item => ({
-        _id: item._id.toString(),
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity
-      })),
+      shopId: new mongoose.Types.ObjectId(shopId),
+      items,
       total,
       tableNumber,
-      paymentMethod
+      paymentMethod,
+      status: 'pending'
     });
 
-    console.log('Order created successfully:', order);
-
-    return NextResponse.json({ 
-      message: 'Order created successfully',
-      order: order.toObject()
+    // Notify connected clients about the new order
+    notifyShopClients(shopId, {
+      type: 'new_order',
+      order
     });
+
+    return NextResponse.json({ order });
   } catch (error) {
     console.error('Error creating order:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to create order' },
+      { error: 'Error creating order' },
       { status: 500 }
     );
   }

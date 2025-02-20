@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Order from '@/models/Order';
 import mongoose from 'mongoose';
 
 export async function GET(
-  request: Request,
-  context: { params: { shopId: string } }
+  request: NextRequest,
+  { params }: { params: { shopId: string } }
 ) {
   try {
     await connectDB();
-    const { shopId } = context.params;
+    const shopId = params.shopId;
 
     if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
@@ -30,19 +30,19 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json(
-      { error: 'Error fetching orders' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(
-  request: Request,
-  context: { params: { shopId: string } }
+  request: NextRequest,
+  { params }: { params: { shopId: string } }
 ) {
   try {
     await connectDB();
-    const { shopId } = context.params;
+    const shopId = params.shopId;
     
     if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
@@ -83,7 +83,7 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating order:', error);
     return NextResponse.json(
-      { error: 'Error updating order' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
