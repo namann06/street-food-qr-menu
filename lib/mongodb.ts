@@ -6,16 +6,16 @@ type MongooseConnection = {
 };
 
 declare global {
-  var mongoose: MongooseConnection | undefined;
+  let mongoose: MongooseConnection | undefined;
 }
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/street-food-qr';
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-const cached: MongooseConnection = global.mongoose || { conn: null, promise: null };
+let cached: MongooseConnection = global.mongoose || { conn: null, promise: null };
 
 if (!global.mongoose) {
   global.mongoose = cached;

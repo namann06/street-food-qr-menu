@@ -1,7 +1,13 @@
 import { NextRequest } from 'next/server';
+import { Order } from '@/models/Order';
 
 // Store connected clients for each shop
 const clients = new Map<string, Set<(data: string) => void>>();
+
+interface NotificationData {
+  type: 'connected' | 'new_order';
+  order?: Order;
+}
 
 export async function GET(
   request: NextRequest,
@@ -33,7 +39,7 @@ export async function GET(
       clients.get(shopId)?.add(send);
 
       // Send initial connection message
-      send(JSON.stringify({ type: 'connected' }));
+      send(JSON.stringify({ type: 'connected' } as NotificationData));
 
       // Remove client when connection closes
       request.signal.addEventListener('abort', () => {
@@ -49,7 +55,7 @@ export async function GET(
 }
 
 // Helper function to notify all clients of a shop about new orders
-export function notifyShopClients(shopId: string, data: any) {
+export function notifyShopClients(shopId: string, data: NotificationData) {
   const shopClients = clients.get(shopId);
   if (shopClients) {
     const message = JSON.stringify(data);

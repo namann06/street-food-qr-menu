@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOrderEvents } from '@/hooks/useOrderEvents';
 
 interface OrderItem {
@@ -29,7 +29,8 @@ export default function OrdersList({ shopId }: OrdersListProps) {
   const [error, setError] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const fetchOrders = async () => {
+  // Use useCallback to memoize the fetchOrders function
+  const fetchOrders = useCallback(async () => {
     try {
       const res = await fetch(`/api/orders/${shopId}`);
       if (!res.ok) throw new Error('Failed to fetch orders');
@@ -41,7 +42,7 @@ export default function OrdersList({ shopId }: OrdersListProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [shopId]);
 
   // Handle new orders from SSE
   const handleNewOrder = (order: Order) => {
@@ -53,7 +54,7 @@ export default function OrdersList({ shopId }: OrdersListProps) {
 
   useEffect(() => {
     fetchOrders();
-  }, [shopId]);
+  }, [fetchOrders]);
 
   const updateOrderStatus = async (orderId: string, newStatus: 'completed' | 'cancelled') => {
     try {
