@@ -9,6 +9,7 @@ interface OrderItem {
 
 interface Order {
   _id: string;
+  orderId: string;
   items: OrderItem[];
   total: number;
   tableNumber: string;
@@ -25,6 +26,7 @@ export default function OrdersList({ shopId }: OrdersListProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   const fetchOrders = async () => {
     try {
@@ -65,11 +67,21 @@ export default function OrdersList({ shopId }: OrdersListProps) {
     }
   };
 
+  const filterOrdersByDate = (orders: Order[], date: string) => {
+    return orders.filter(order => {
+      const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+      return orderDate === date;
+    });
+  };
+
   if (loading) return <div className="text-gray-400">Loading orders...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   const pendingOrders = orders.filter(order => order.status === 'pending');
-  const completedOrders = orders.filter(order => order.status === 'completed');
+  const completedOrders = filterOrdersByDate(
+    orders.filter(order => order.status === 'completed'),
+    selectedDate
+  );
 
   return (
     <div className="space-y-6">
@@ -90,6 +102,9 @@ export default function OrdersList({ shopId }: OrdersListProps) {
                     <span className="ml-4 text-gray-400">
                       {new Date(order.createdAt).toLocaleTimeString()}
                     </span>
+                    <div className="text-sm text-blue-400 mt-1">
+                      Order ID: {order.orderId}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -132,12 +147,20 @@ export default function OrdersList({ shopId }: OrdersListProps) {
 
       {/* Completed Orders */}
       <div>
-        <h3 className="text-xl font-semibold mb-4 text-green-500">Completed Orders</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-semibold text-green-500">Completed Orders</h3>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="px-3 py-1 bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500 text-white"
+          />
+        </div>
         <div className="space-y-4">
           {completedOrders.length === 0 ? (
-            <p className="text-gray-400">No completed orders</p>
+            <p className="text-gray-400">No completed orders for selected date</p>
           ) : (
-            completedOrders.slice(0, 5).map((order) => (
+            completedOrders.map((order) => (
               <div key={order._id} className="bg-gray-800 p-4 rounded-lg opacity-75">
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -147,6 +170,9 @@ export default function OrdersList({ shopId }: OrdersListProps) {
                     <span className="ml-4 text-gray-400">
                       {new Date(order.createdAt).toLocaleTimeString()}
                     </span>
+                    <div className="text-sm text-blue-400 mt-1">
+                      Order ID: {order.orderId}
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-2">
