@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
+import Cart from '../../components/Cart';
 
 interface MenuItem {
   _id: string;
@@ -9,6 +10,13 @@ interface MenuItem {
   price: number;
   category: string;
   available: boolean;
+}
+
+interface CartItem {
+  _id: string;
+  name: string;
+  price: number;
+  quantity: number;
 }
 
 interface Shop {
@@ -26,6 +34,40 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  const addToCart = (item: MenuItem) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(cartItem => cartItem._id === item._id);
+      if (existingItem) {
+        return prevItems.map(cartItem =>
+          cartItem._id === item._id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      }
+      return [...prevItems, { _id: item._id, name: item.name, price: item.price, quantity: 1 }];
+    });
+  };
+
+  const updateCartItemQuantity = (itemId: string, newQuantity: number) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item._id === itemId
+          ? { ...item, quantity: newQuantity }
+          : item
+      ).filter(item => item.quantity > 0)
+    );
+  };
+
+  const removeCartItem = (itemId: string) => {
+    setCartItems(prevItems => prevItems.filter(item => item._id !== itemId));
+  };
+
+  const handleCheckout = () => {
+    // Here you can implement the checkout logic
+    alert('Total bill: ₹' + cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2));
+  };
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -150,14 +192,52 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                         {item.description}
                       </p>
                     )}
-                    <p className="text-green-500 mt-1">₹{item.price.toFixed(2)}</p>
+                    <p className="text-blue-400 mt-2">₹{item.price}</p>
                   </div>
+                  {cartItems.find(cartItem => cartItem._id === item._id) ? (
+                    <div className="flex items-center space-x-2 bg-gray-700 rounded-lg px-2">
+                      <button
+                        onClick={() => {
+                          const currentQuantity = cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0;
+                          updateCartItemQuantity(item._id, Math.max(0, currentQuantity - 1));
+                        }}
+                        className="text-white hover:text-blue-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
+                      >
+                        -
+                      </button>
+                      <span className="text-white w-8 text-center">
+                        {cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0}
+                      </span>
+                      <button
+                        onClick={() => {
+                          const currentQuantity = cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0;
+                          updateCartItemQuantity(item._id, currentQuantity + 1);
+                        }}
+                        className="text-white hover:text-blue-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
+                      >
+                        +
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => addToCart(item)}
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Add to Cart
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
+      <Cart
+        items={cartItems}
+        onUpdateQuantity={updateCartItemQuantity}
+        onRemoveItem={removeCartItem}
+        onCheckout={handleCheckout}
+      />
     </div>
   );
 }
