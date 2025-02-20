@@ -29,19 +29,31 @@ async function connectDB(): Promise<typeof mongoose> {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts);
+    try {
+      cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+        console.log('Connected to MongoDB');
+        return mongoose;
+      });
+    } catch (error) {
+      console.error('Error connecting to MongoDB:', error);
+      throw error;
+    }
   }
 
   try {
-    const conn = await cached.promise;
-    cached.conn = conn;
-    return conn;
-  } catch (e) {
+    cached.conn = await cached.promise;
+  } catch (error) {
     cached.promise = null;
-    throw e;
+    console.error('Error establishing MongoDB connection:', error);
+    throw error;
   }
+
+  return cached.conn;
 }
 
 export default connectDB;
