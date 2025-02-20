@@ -7,9 +7,10 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { shopId: string } }
 ) {
-  const shopId = params.shopId;
+  // Get and await the shopId parameter
+  const { shopId } = params;
 
-  // Set up Server-Sent Events headers
+  // Set up headers for SSE
   const headers = new Headers({
     'Content-Type': 'text/event-stream',
     'Connection': 'keep-alive',

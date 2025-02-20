@@ -9,7 +9,9 @@ export async function GET(
 ) {
   try {
     await connectDB();
-    const shopId = params.shopId;
+    
+    // Get and await the shopId parameter
+    const { shopId } = params;
 
     if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
@@ -21,9 +23,9 @@ export async function GET(
     const orders = await Order.find({
       shopId: new mongoose.Types.ObjectId(shopId),
     })
-      .sort({ createdAt: -1 }) // Most recent first
-      .select('-__v') // Exclude version field
-      .lean() // Convert to plain JavaScript objects
+      .sort({ createdAt: -1 })
+      .select('-__v')
+      .lean()
       .exec();
 
     return NextResponse.json({ orders });
@@ -42,7 +44,9 @@ export async function PUT(
 ) {
   try {
     await connectDB();
-    const shopId = params.shopId;
+    
+    // Get and await the shopId parameter
+    const { shopId } = params;
     
     if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
@@ -54,9 +58,9 @@ export async function PUT(
     const body = await request.json();
     const { orderId, status } = body;
 
-    if (!orderId || !status || !['completed', 'cancelled'].includes(status)) {
+    if (!orderId || !status) {
       return NextResponse.json(
-        { error: 'Invalid order ID or status' },
+        { error: 'Order ID and status are required' },
         { status: 400 }
       );
     }
@@ -68,9 +72,7 @@ export async function PUT(
       },
       { status },
       { new: true }
-    )
-      .select('-__v')
-      .lean();
+    );
 
     if (!updatedOrder) {
       return NextResponse.json(
