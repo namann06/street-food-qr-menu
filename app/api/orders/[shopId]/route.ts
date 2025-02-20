@@ -5,12 +5,13 @@ import mongoose from 'mongoose';
 
 export async function GET(
   request: Request,
-  { params }: { params: { shopId: string } }
+  context: { params: { shopId: string } }
 ) {
   try {
     await connectDB();
+    const { shopId } = context.params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.shopId)) {
+    if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
         { error: 'Invalid shop ID' },
         { status: 400 }
@@ -18,7 +19,7 @@ export async function GET(
     }
 
     const orders = await Order.find({
-      shopId: new mongoose.Types.ObjectId(params.shopId),
+      shopId: new mongoose.Types.ObjectId(shopId),
     })
       .sort({ createdAt: -1 }) // Most recent first
       .select('-__v') // Exclude version field
@@ -37,19 +38,21 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { shopId: string } }
+  context: { params: { shopId: string } }
 ) {
   try {
     await connectDB();
-
-    if (!mongoose.Types.ObjectId.isValid(params.shopId)) {
+    const { shopId } = context.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
         { error: 'Invalid shop ID' },
         { status: 400 }
       );
     }
 
-    const { orderId, status } = await request.json();
+    const body = await request.json();
+    const { orderId, status } = body;
 
     if (!orderId || !status || !['completed', 'cancelled'].includes(status)) {
       return NextResponse.json(
@@ -58,10 +61,10 @@ export async function PUT(
       );
     }
 
-    const order = await Order.findOneAndUpdate(
+    const updatedOrder = await Order.findOneAndUpdate(
       {
         _id: orderId,
-        shopId: new mongoose.Types.ObjectId(params.shopId)
+        shopId: new mongoose.Types.ObjectId(shopId)
       },
       { status },
       { new: true }
@@ -69,14 +72,14 @@ export async function PUT(
       .select('-__v')
       .lean();
 
-    if (!order) {
+    if (!updatedOrder) {
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ order });
+    return NextResponse.json({ order: updatedOrder });
   } catch (error) {
     console.error('Error updating order:', error);
     return NextResponse.json(

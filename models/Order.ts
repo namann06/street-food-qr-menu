@@ -30,6 +30,7 @@ const OrderSchema = new mongoose.Schema<IOrder, OrderModel>({
   orderId: {
     type: String,
     required: true,
+    index: true,
     unique: true
   },
   items: [{
@@ -100,7 +101,6 @@ OrderSchema.statics.generateOrderId = async function() {
 
 // Add index for better performance
 OrderSchema.index({ shopId: 1, createdAt: -1 });
-OrderSchema.index({ orderId: 1 }, { unique: true });
 
 const Order = mongoose.models.Order as OrderModel || mongoose.model<IOrder, OrderModel>('Order', OrderSchema);
 
