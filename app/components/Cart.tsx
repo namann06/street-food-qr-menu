@@ -50,7 +50,7 @@ export default function Cart({
     <div className="fixed bottom-0 right-0 p-4 z-50">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg flex items-center justify-center space-x-2 transition-all duration-300 transform hover:scale-105"
+        className="bg-blue-600 hover:bg-blue-700 text-black p-4 rounded-full shadow-lg flex items-center justify-center space-x-2 transition-all duration-300 transform hover:scale-105"
       >
         <FaShoppingCart className="text-xl" />
         <span className="font-semibold">{items.length}</span>
@@ -60,14 +60,14 @@ export default function Cart({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-hidden shadow-2xl relative">
             {/* Header */}
-            <div className="bg-blue-600 text-white p-6 relative">
+            <div className="bg-blue-600 text-black p-6 relative">
               <h2 className="text-2xl font-bold">Your Cart</h2>
               <button
                 onClick={() => {
                   setIsOpen(false);
                   setShowPaymentOptions(false);
                 }}
-                className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+                className="absolute top-4 right-4 text-black hover:text-gray-200 transition-colors"
               >
                 <FaTimes className="text-xl" />
               </button>
@@ -141,7 +141,7 @@ export default function Cart({
                         </div>
                         <button
                           onClick={handleProceedToPayment}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-black py-3 rounded-lg font-semibold transition-colors"
                         >
                           Proceed to Payment
                         </button>
@@ -155,7 +155,7 @@ export default function Cart({
                               onClick={() => setPaymentMethod('counter')}
                               className={`p-4 rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
                                 paymentMethod === 'counter'
-                                  ? 'bg-blue-600 text-white'
+                                  ? 'bg-blue-600 text-black'
                                   : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
                               }`}
                             >
@@ -166,7 +166,7 @@ export default function Cart({
                               onClick={() => setPaymentMethod('upi')}
                               className={`p-4 rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
                                 paymentMethod === 'upi'
-                                  ? 'bg-blue-600 text-white'
+                                  ? 'bg-blue-600 text-black'
                                   : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
                               }`}
                             >
@@ -177,7 +177,7 @@ export default function Cart({
                         </div>
                         <button
                           onClick={handlePayment}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="w-full bg-green-600 hover:bg-green-700 text-black py-3 rounded-lg font-semibold transition-colors"
                         >
                           Place Order
                         </button>
