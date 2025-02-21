@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { FaShoppingCart, FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
+import { BsCashStack, BsQrCode } from 'react-icons/bs';
 
 interface CartItem {
   _id: string;
@@ -45,125 +47,146 @@ export default function Cart({
   };
 
   return (
-    <div className="fixed bottom-0 right-0 p-4">
+    <div className="fixed bottom-0 right-0 p-4 z-50">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-blue-500 text-white p-4 rounded-full shadow-lg"
+        className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg flex items-center justify-center space-x-2 transition-all duration-300 transform hover:scale-105"
       >
-        Cart ({items.length})
+        <FaShoppingCart className="text-xl" />
+        <span className="font-semibold">{items.length}</span>
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
-            {items.length === 0 ? (
-              <p>Your cart is empty</p>
-            ) : (
-              <>
-                {items.map((item) => (
-                  <div key={item._id} className="flex justify-between items-center mb-4">
-                    <div>
-                      <h3 className="font-semibold">{item.name}</h3>
-                      <p className="text-gray-600">₹{item.price}</p>
-                    </div>
-                    <div className="flex items-center">
-                      <button
-                        onClick={() => onUpdateQuantity(item._id, Math.max(0, item.quantity - 1))}
-                        className="px-2 py-1 bg-gray-200 rounded"
-                      >
-                        -
-                      </button>
-                      <span className="mx-2">{item.quantity}</span>
-                      <button
-                        onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
-                        className="px-2 py-1 bg-gray-200 rounded"
-                      >
-                        +
-                      </button>
-                      <button
-                        onClick={() => onRemoveItem(item._id)}
-                        className="ml-4 text-red-500"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                <div className="border-t pt-4 mt-4">
-                  <div className="flex justify-between mb-4">
-                    <span className="font-semibold">Total:</span>
-                    <span>₹{total}</span>
-                  </div>
-                  
-                  {!showPaymentOptions ? (
-                    <>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Table Number
-                        </label>
-                        <input
-                          type="text"
-                          value={tableNumber}
-                          onChange={(e) => setTableNumber(e.target.value)}
-                          className="w-full p-2 border rounded"
-                          placeholder="Enter your table number"
-                        />
-                      </div>
-                      <button
-                        onClick={handleProceedToPayment}
-                        className="w-full bg-blue-500 text-white py-2 rounded"
-                      >
-                        Proceed to Payment
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="mb-4">
-                        <h3 className="font-semibold mb-2">Select Payment Method</h3>
-                        <div className="space-y-2">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-hidden shadow-2xl relative">
+            {/* Header */}
+            <div className="bg-blue-600 text-white p-6 relative">
+              <h2 className="text-2xl font-bold">Your Cart</h2>
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setShowPaymentOptions(false);
+                }}
+                className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              {items.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Your cart is empty</p>
+                </div>
+              ) : (
+                <>
+                  {/* Cart Items */}
+                  <div className="space-y-4 mb-6">
+                    {items.map((item) => (
+                      <div key={item._id} className="bg-gray-50 rounded-lg p-4 shadow-sm">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold text-gray-800">{item.name}</h3>
+                            <p className="text-blue-600 font-medium">₹{item.price}</p>
+                          </div>
                           <button
-                            onClick={() => setPaymentMethod('counter')}
-                            className={`w-full py-2 rounded ${
-                              paymentMethod === 'counter'
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-200'
-                            }`}
+                            onClick={() => onRemoveItem(item._id)}
+                            className="text-red-500 hover:text-red-600 transition-colors"
                           >
-                            Pay at Counter
+                            <FaTimes />
                           </button>
+                        </div>
+                        <div className="flex items-center justify-end mt-2">
                           <button
-                            onClick={() => setPaymentMethod('upi')}
-                            className={`w-full py-2 rounded ${
-                              paymentMethod === 'upi'
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-200'
-                            }`}
+                            onClick={() => onUpdateQuantity(item._id, Math.max(0, item.quantity - 1))}
+                            className="p-2 bg-gray-200 hover:bg-gray-300 rounded-l text-gray-600 transition-colors"
                           >
-                            Pay via UPI
+                            <FaMinus className="text-sm" />
+                          </button>
+                          <span className="px-4 py-1 bg-white border-y text-center min-w-[40px]">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => onUpdateQuantity(item._id, item.quantity + 1)}
+                            className="p-2 bg-gray-200 hover:bg-gray-300 rounded-r text-gray-600 transition-colors"
+                          >
+                            <FaPlus className="text-sm" />
                           </button>
                         </div>
                       </div>
-                      <button
-                        onClick={handlePayment}
-                        className="w-full bg-green-500 text-white py-2 rounded"
-                      >
-                        Place Order
-                      </button>
-                    </>
-                  )}
-                </div>
-              </>
-            )}
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                setShowPaymentOptions(false);
-              }}
-              className="absolute top-2 right-2 text-gray-500"
-            >
-              ✕
-            </button>
+                    ))}
+                  </div>
+
+                  {/* Total and Actions */}
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="flex justify-between items-center mb-6">
+                      <span className="text-lg font-semibold text-gray-800">Total:</span>
+                      <span className="text-xl font-bold text-blue-600">₹{total}</span>
+                    </div>
+                    
+                    {!showPaymentOptions ? (
+                      <>
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Table Number
+                          </label>
+                          <input
+                            type="text"
+                            value={tableNumber}
+                            onChange={(e) => setTableNumber(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            placeholder="Enter your table number"
+                          />
+                        </div>
+                        <button
+                          onClick={handleProceedToPayment}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                        >
+                          Proceed to Payment
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="mb-6">
+                          <h3 className="font-semibold text-gray-800 mb-4">Select Payment Method</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              onClick={() => setPaymentMethod('counter')}
+                              className={`p-4 rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
+                                paymentMethod === 'counter'
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                              }`}
+                            >
+                              <BsCashStack className="text-2xl" />
+                              <span>Pay at Counter</span>
+                            </button>
+                            <button
+                              onClick={() => setPaymentMethod('upi')}
+                              className={`p-4 rounded-lg flex flex-col items-center justify-center space-y-2 transition-all ${
+                                paymentMethod === 'upi'
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                              }`}
+                            >
+                              <BsQrCode className="text-2xl" />
+                              <span>Pay via UPI</span>
+                            </button>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handlePayment}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                        >
+                          Place Order
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
