@@ -104,7 +104,7 @@ export default function Cart({
                           >
                             <FaMinus className="text-sm" />
                           </button>
-                          <span className="px-4 py-1 bg-white border-y text-center min-w-[40px]">
+                          <span className="px-4 py-1 bg-black text-white border-y text-center min-w-[40px]">
                             {item.quantity}
                           </span>
                           <button
@@ -135,7 +135,7 @@ export default function Cart({
                             type="text"
                             value={tableNumber}
                             onChange={(e) => setTableNumber(e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            className=" text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                             placeholder="Enter your table number"
                           />
                         </div>
