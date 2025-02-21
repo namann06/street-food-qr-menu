@@ -65,9 +65,40 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
     setCartItems(prevItems => prevItems.filter(item => item._id !== itemId));
   };
 
-  const handleCheckout = () => {
-    // Here you can implement the checkout logic
-    alert('Total bill: ₹' + cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2));
+  const handleCheckout = async (paymentMethod: 'upi' | 'counter', tableNumber: string) => {
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shopId,
+          items: cartItems,
+          total: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+          tableNumber,
+          paymentMethod,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to place order');
+      }
+
+      const data = await response.json();
+      
+      if (paymentMethod === 'upi' && shop?.upiId) {
+        // Open UPI payment
+        window.location.href = `upi://pay?pa=${shop.upiId}&pn=${shop.name}&am=${cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}&tn=Order%20Payment`;
+      }
+
+      // Clear cart
+      setCartItems([]);
+      alert('Order placed successfully! Order ID: ' + data.orderId);
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert('Failed to place order. Please try again.');
+    }
   };
 
   useEffect(() => {
@@ -235,10 +266,11 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
       </div>
       <Cart
         items={cartItems}
-        onUpdateQuantity={updateCartItemQuantity}
+        total={cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
         onRemoveItem={removeCartItem}
-        shopId={shopId}
-        upiId={shop?.upiId}
+        onUpdateQuantity={updateCartItemQuantity}
+        onCheckout={handleCheckout}
+        shopUpiId={shop?.upiId}
       />
     </div>
   );

@@ -12,7 +12,8 @@ interface CartProps {
   total: number;
   onRemoveItem: (id: string) => void;
   onUpdateQuantity: (id: string, quantity: number) => void;
-  onCheckout: () => void;
+  onCheckout: (paymentMethod: 'upi' | 'counter', tableNumber: string) => void;
+  shopUpiId?: string;
 }
 
 export default function Cart({
@@ -20,9 +21,28 @@ export default function Cart({
   total,
   onRemoveItem,
   onUpdateQuantity,
-  onCheckout
+  onCheckout,
+  shopUpiId
 }: CartProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'counter'>('counter');
+  const [tableNumber, setTableNumber] = useState('');
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+
+  const handleProceedToPayment = () => {
+    if (!tableNumber) {
+      alert('Please enter your table number');
+      return;
+    }
+    setShowPaymentOptions(true);
+  };
+
+  const handlePayment = () => {
+    onCheckout(paymentMethod, tableNumber);
+    setIsOpen(false);
+    setShowPaymentOptions(false);
+    setTableNumber('');
+  };
 
   return (
     <div className="fixed bottom-0 right-0 p-4">
@@ -75,20 +95,71 @@ export default function Cart({
                     <span className="font-semibold">Total:</span>
                     <span>₹{total}</span>
                   </div>
-                  <button
-                    onClick={() => {
-                      onCheckout();
-                      setIsOpen(false);
-                    }}
-                    className="w-full bg-blue-500 text-white py-2 rounded"
-                  >
-                    Proceed to Checkout
-                  </button>
+                  
+                  {!showPaymentOptions ? (
+                    <>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Table Number
+                        </label>
+                        <input
+                          type="text"
+                          value={tableNumber}
+                          onChange={(e) => setTableNumber(e.target.value)}
+                          className="w-full p-2 border rounded"
+                          placeholder="Enter your table number"
+                        />
+                      </div>
+                      <button
+                        onClick={handleProceedToPayment}
+                        className="w-full bg-blue-500 text-white py-2 rounded"
+                      >
+                        Proceed to Payment
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="mb-4">
+                        <h3 className="font-semibold mb-2">Select Payment Method</h3>
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => setPaymentMethod('counter')}
+                            className={`w-full py-2 rounded ${
+                              paymentMethod === 'counter'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200'
+                            }`}
+                          >
+                            Pay at Counter
+                          </button>
+                          <button
+                            onClick={() => setPaymentMethod('upi')}
+                            className={`w-full py-2 rounded ${
+                              paymentMethod === 'upi'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200'
+                            }`}
+                          >
+                            Pay via UPI
+                          </button>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handlePayment}
+                        className="w-full bg-green-500 text-white py-2 rounded"
+                      >
+                        Place Order
+                      </button>
+                    </>
+                  )}
                 </div>
               </>
             )}
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                setShowPaymentOptions(false);
+              }}
               className="absolute top-2 right-2 text-gray-500"
             >
               ✕
