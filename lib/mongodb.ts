@@ -35,13 +35,17 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
       maxPoolSize: 10,
       minPoolSize: 5,
       maxIdleTimeMS: 10000,
       heartbeatFrequencyMS: 5000,
+      ssl: true,
+      tls: true,
+      tlsAllowInvalidCertificates: true,
+      tlsAllowInvalidHostnames: true
     };
 
     try {
