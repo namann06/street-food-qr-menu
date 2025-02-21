@@ -15,7 +15,16 @@ export async function POST(req: Request) {
       );
     }
 
-    await connectDB();
+    // Connect to database
+    try {
+      await connectDB();
+    } catch (error) {
+      console.error('Database connection error:', error);
+      return NextResponse.json(
+        { message: 'Database connection failed. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -49,9 +58,9 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Signup error:', error);
     return NextResponse.json(
-      { message: 'Error creating user' },
+      { message: 'An error occurred during signup. Please try again.' },
       { status: 500 }
     );
   }

@@ -25,55 +25,37 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            throw new Error('Please provide email and password');
+            console.error('Missing credentials');
+            return null;
           }
 
-          // Connect to DB with timeout
+          // Connect to DB
           try {
-            await Promise.race([
-              connectDB(),
-              new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Database connection timeout')), 5000)
-              )
-            ]);
+            await connectDB();
           } catch (error) {
             console.error('Database connection error:', error);
-            throw new Error('Unable to connect to database. Please try again.');
+            return null;
           }
 
-          // Find user with timeout
-          let user;
-          try {
-            user = await User.findOne({ email: credentials.email }).maxTimeMS(3000).exec();
-          } catch (error) {
-            console.error('User lookup error:', error);
-            throw new Error('Error looking up user. Please try again.');
-          }
-
+          // Find user
+          const user = await User.findOne({ email: credentials.email });
           if (!user) {
-            throw new Error('No user found with this email');
+            console.error('User not found');
+            return null;
           }
 
           // Verify password
-          let isValid;
-          try {
-            isValid = await bcrypt.compare(credentials.password, user.password);
-          } catch (error) {
-            console.error('Password verification error:', error);
-            throw new Error('Error verifying password. Please try again.');
-          }
-
+          const isValid = await bcrypt.compare(credentials.password, user.password);
           if (!isValid) {
-            throw new Error('Invalid password');
+            console.error('Invalid password');
+            return null;
           }
 
-          // Find shop with timeout
-          let shop;
-          try {
-            shop = await Shop.findOne({ owner: user._id }).maxTimeMS(3000).exec();
-          } catch (error) {
-            console.error('Shop lookup error:', error);
-            // Don't throw here, shop is optional
+          // Get associated shop if user is shop_owner
+          let shopId;
+          if (user.role === 'shop_owner') {
+            const shop = await Shop.findOne({ owner: user._id });
+            shopId = shop?._id;
           }
 
           return {
@@ -81,13 +63,13 @@ export const authOptions: AuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
-            shopId: shop ? shop._id.toString() : undefined,
+            shopId: shopId?.toString()
           };
         } catch (error) {
           console.error('Authorization error:', error);
-          throw error;
+          return null;
         }
-      }
+      },
     })
   ],
   session: {
