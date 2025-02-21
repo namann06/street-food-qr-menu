@@ -29,55 +29,60 @@ const cached = global.mongoose;
 
 async function connectDB() {
   if (cached.conn) {
+    console.log('Using cached MongoDB connection');
     return cached.conn;
   }
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 30000,
       maxPoolSize: 10,
-      minPoolSize: 5,
-      maxIdleTimeMS: 10000,
-      heartbeatFrequencyMS: 5000,
-      ssl: true,
-      tls: true,
-      tlsAllowInvalidCertificates: true,
-      tlsAllowInvalidHostnames: true
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 20000,
+      family: 4 // Force IPv4
     };
 
-    try {
-      cached.promise = mongoose.connect(MONGODB_URI!, opts);
-      console.log('MongoDB connection initiated');
-    } catch (error) {
-      cached.promise = null;
-      console.error('MongoDB connection error:', error);
-      throw new Error('Failed to connect to MongoDB. Please try again later.');
-    }
+    console.log('Connecting to MongoDB...');
+    cached.promise = mongoose.connect(MONGODB_URI!, opts)
+      .then((mongoose) => {
+        console.log('MongoDB connected successfully');
+        return mongoose;
+      })
+      .catch((error) => {
+        console.error('MongoDB connection error:', error);
+        cached.promise = null;
+        throw error;
+      });
+  } else {
+    console.log('Using existing MongoDB connection promise');
   }
 
   try {
     cached.conn = await cached.promise;
-    console.log('MongoDB connected successfully');
     return cached.conn;
   } catch (error) {
     cached.promise = null;
-    console.error('MongoDB connection failed:', error);
+    console.error('Failed to establish MongoDB connection:', error);
     throw new Error('Failed to establish MongoDB connection. Please try again later.');
   }
 }
 
 // Add event listeners for connection issues
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connection established');
+});
+
 mongoose.connection.on('error', (error) => {
   console.error('MongoDB connection error:', error);
 });
 
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected');
-  cached.conn = null;
-  cached.promise = null;
+});
+
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  process.exit(0);
 });
 
 export default connectDB;
