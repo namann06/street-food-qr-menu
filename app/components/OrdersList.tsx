@@ -94,16 +94,16 @@ export default function OrdersList({ shopId }: OrdersListProps) {
     <div className="space-y-6">
       {/* Pending Orders */}
       <div>
-        <h3 className="text-xl font-semibold mb-4 text-yellow-500">Pending Orders</h3>
+        <h3 className="text-xl font-semibold mb-4 text-orange-400">Pending Orders</h3>
         <div className="space-y-4">
           {pendingOrders.length === 0 ? (
             <p className="text-gray-400">No pending orders</p>
           ) : (
             pendingOrders.map((order) => (
-              <div key={order._id} className="bg-gray-800 p-4 rounded-lg">
+              <div key={order._id} className="bg-stone-800 p-4 rounded-lg">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <span className="text-yellow-500 font-medium">
+                    <span className="text-orange-400 font-medium">
                       Table {order.tableNumber}
                     </span>
                     <span className="ml-4 text-gray-400">
@@ -116,13 +116,13 @@ export default function OrdersList({ shopId }: OrdersListProps) {
                   <div className="flex gap-2">
                     <button
                       onClick={() => updateOrderStatus(order._id, 'completed')}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm"
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm text-white transition-colors"
                     >
                       Complete
                     </button>
                     <button
                       onClick={() => updateOrderStatus(order._id, 'cancelled')}
-                      className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm text-white transition-colors"
                     >
                       Cancel
                     </button>
@@ -131,17 +131,17 @@ export default function OrdersList({ shopId }: OrdersListProps) {
                 <div className="space-y-2">
                   {order.items.map((item) => (
                     <div key={item._id} className="flex justify-between text-sm">
-                      <span>
+                      <span className="text-white">
                         {item.quantity}x {item.name}
                       </span>
                       <span className="text-gray-400">₹{item.price * item.quantity}</span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-2 border-t border-gray-700 flex justify-between items-center">
+                <div className="mt-4 pt-2 border-t border-stone-700 flex justify-between items-center">
                   <div>
                     <span className="text-blue-400">Total: ₹{order.total}</span>
-                    <span className="ml-4 px-2 py-1 rounded bg-gray-700 text-xs">
+                    <span className="ml-4 px-2 py-1 rounded bg-stone-700 text-xs text-white">
                       {order.paymentMethod === 'upi' ? 'Pay by UPI' : 'Pay at Counter'}
                     </span>
                   </div>
@@ -160,7 +160,7 @@ export default function OrdersList({ shopId }: OrdersListProps) {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="px-3 py-1 bg-gray-800 rounded border border-gray-700 focus:outline-none focus:border-blue-500 text-white"
+            className="px-3 py-1 bg-stone-800 rounded border border-stone-700 focus:outline-none focus:border-orange-500 text-white"
           />
         </div>
         <div className="space-y-4">
@@ -168,7 +168,7 @@ export default function OrdersList({ shopId }: OrdersListProps) {
             <p className="text-gray-400">No completed orders for selected date</p>
           ) : (
             completedOrders.map((order) => (
-              <div key={order._id} className="bg-gray-800 p-4 rounded-lg opacity-75">
+              <div key={order._id} className="bg-stone-800 p-4 rounded-lg opacity-75">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <span className="text-green-500 font-medium">
@@ -185,14 +185,14 @@ export default function OrdersList({ shopId }: OrdersListProps) {
                 <div className="space-y-2">
                   {order.items.map((item) => (
                     <div key={item._id} className="flex justify-between text-sm">
-                      <span>
+                      <span className="text-white">
                         {item.quantity}x {item.name}
                       </span>
                       <span className="text-gray-400">₹{item.price * item.quantity}</span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-2 border-t border-gray-700">
+                <div className="mt-4 pt-2 border-t border-stone-700">
                   <span className="text-blue-400">Total: ₹{order.total}</span>
                 </div>
               </div>

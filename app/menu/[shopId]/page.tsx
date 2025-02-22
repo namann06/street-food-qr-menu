@@ -36,6 +36,7 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [showCategories, setShowCategories] = useState(false); // State to toggle category list
 
   const addToCart = (item: MenuItem) => {
     setCartItems(prevItems => {
@@ -125,7 +126,7 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-black-900 text-white flex items-center justify-center">
         Loading menu...
       </div>
     );
@@ -133,7 +134,7 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
 
   if (error || !shop) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-black-900 text-white flex items-center justify-center">
         {error || 'Shop not found'}
       </div>
     );
@@ -172,11 +173,13 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
   }, {} as Record<string, MenuItem[]>);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
+    <div className="min-h-screen bg-black-900 text-slate-50 p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">{shop.name}</h1>
-          <p className="text-gray-400">{shop.address}</p>
+        <div className="text-center space-y-2 mb-8">
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-orange-500">
+            {shop.name}
+          </h1>
+          <p className="text-lg text-white-500 dark:text-white-400">{shop.address}</p>
         </div>
 
         {/* Search and Filter Section */}
@@ -186,54 +189,68 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
             placeholder="Search menu items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
+            className="w-full px-4 py-2 rounded-lg bg-orange-700 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
           />
           
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-lg ${
-                  selectedCategory === category
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </button>
-            ))}
-          </div>
+          {/* Category Toggle Button */}
+          <button
+            onClick={() => setShowCategories(!showCategories)}
+            className="w-full px-4 py-2 rounded-lg bg-stone-800 text-white-300 hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+          >
+            {showCategories ? 'Hide' : 'Filter by Categories'}
+          </button>
+
+          {/* Category List */}
+          {showCategories && (
+            <div className="flex flex-col gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setShowCategories(false); // Hide the list after selection
+                  }}
+                  className={`px-4 py-2 rounded-lg ${
+                    selectedCategory === category
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {Object.entries(filteredMenuByCategory).map(([category, items]) => (
           <div key={category} className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 text-blue-400">
+            <h2 className="text-xl font-semibold mb-4 text-orange-400">
               {category}
             </h2>
             <div className="space-y-4">
               {items.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-gray-800 p-4 rounded-lg flex justify-between items-start"
+                  className="bg-stone-900 p-4 rounded-lg flex justify-between items-start"
                 >
                   <div>
                     <h3 className="font-medium text-lg">{item.name}</h3>
                     {item.description && (
-                      <p className="text-gray-400 text-sm mt-1">
+                      <p className="text-beige-400 text-sm mt-1">
                         {item.description}
                       </p>
                     )}
-                    <p className="text-blue-400 mt-2">₹{item.price}</p>
+                    <p className="text-orange-400 mt-2">₹{item.price}</p>
                   </div>
                   {cartItems.find(cartItem => cartItem._id === item._id) ? (
-                    <div className="flex items-center space-x-2 bg-gray-700 rounded-lg px-2">
+                    <div className="flex items-center space-x-2 bg-orange-600 rounded-lg px-2">
                       <button
                         onClick={() => {
                           const currentQuantity = cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0;
                           updateCartItemQuantity(item._id, Math.max(0, currentQuantity - 1));
                         }}
-                        className="text-white hover:text-blue-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
+                        className="text-white hover:text-orange-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
                       >
                         -
                       </button>
@@ -245,7 +262,7 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                           const currentQuantity = cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0;
                           updateCartItemQuantity(item._id, currentQuantity + 1);
                         }}
-                        className="text-white hover:text-blue-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
+                        className="text-white hover:text-orange-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
                       >
                         +
                       </button>
@@ -253,9 +270,9 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                   ) : (
                     <button
                       onClick={() => addToCart(item)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                      className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
                     >
-                      Add to Cart
+                      Add 
                     </button>
                   )}
                 </div>

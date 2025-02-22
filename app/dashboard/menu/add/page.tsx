@@ -49,46 +49,46 @@ export default function AddMenuItem() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
+    <div className="min-h-screen bg-black-900 text-white p-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-8">Add Menu Item</h1>
+        <h1 className="text-2xl font-bold mb-8 text-orange-400">Add Menu Item</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-red-500 text-white p-3 rounded-md">
+            <div className="bg-red-600 text-white p-3 rounded-md">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-400">
               Item Name
             </label>
             <input
               type="text"
               name="name"
               required
-              className="w-full px-3 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
               value={formData.name}
               onChange={handleChange}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-400">
               Description
             </label>
             <textarea
               name="description"
               rows={3}
-              className="w-full px-3 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
               value={formData.description}
               onChange={handleChange}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-400">
               Price (₹)
             </label>
             <input
@@ -96,20 +96,20 @@ export default function AddMenuItem() {
               name="price"
               step="0.01"
               required
-              className="w-full px-3 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
               value={formData.price}
               onChange={handleChange}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-400">
               Category
             </label>
             <input
               type="text"
               name="category"
-              className="w-full px-3 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
               value={formData.category}
               onChange={handleChange}
             />
@@ -118,14 +118,14 @@ export default function AddMenuItem() {
           <div className="flex gap-4">
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"
+              className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white transition-colors"
             >
               Add Item
             </button>
             <button
               type="button"
               onClick={() => router.back()}
-              className="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-lg"
+              className="bg-stone-700 hover:bg-stone-600 px-4 py-2 rounded-lg text-white transition-colors"
             >
               Cancel
             </button>

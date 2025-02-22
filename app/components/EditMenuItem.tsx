@@ -106,18 +106,18 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Edit Menu Item</h2>
+      <div className="bg-stone-900 p-6 rounded-lg w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4 text-orange-400">Edit Menu Item</h2>
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <div className="bg-red-600 border border-red-700 text-white px-4 py-3 rounded relative mb-4" role="alert">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-400">Name</label>
             <input
               type="text"
               id="name"
@@ -125,23 +125,23 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
               value={formData.name}
               onChange={handleChange}
               required
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+              className="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2 px-3 text-white focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-400">Description</label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+              className="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2 px-3 text-white focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
+            <label htmlFor="price" className="block text-sm font-medium text-gray-400">Price</label>
             <input
               type="number"
               id="price"
@@ -151,19 +151,19 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
               required
               min="0"
               step="0.01"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+              className="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2 px-3 text-white focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-400">Category</label>
             <input
               type="text"
               id="category"
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+              className="mt-1 block w-full bg-stone-800 border border-stone-700 rounded-md shadow-sm py-2 px-3 text-white focus:ring-orange-500 focus:border-orange-500"
             />
           </div>
 
@@ -174,9 +174,9 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
                 name="available"
                 checked={formData.available}
                 onChange={handleChange}
-                className="form-checkbox"
+                className="form-checkbox bg-stone-800 border-stone-700 text-orange-500 focus:ring-orange-500"
               />
-              <span className="ml-2">Available</span>
+              <span className="ml-2 text-gray-400">Available</span>
             </label>
           </div>
 
@@ -185,16 +185,16 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
               type="button"
               onClick={onClose}
               disabled={saving}
-              className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500"
+              className="px-4 py-2 bg-stone-700 text-white rounded hover:bg-stone-600 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
+              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
             >
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? 'Saving...' : 'Save Changesss'}
             </button>
           </div>
         </form>
