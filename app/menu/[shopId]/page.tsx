@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from 'react';
 import Cart from '../../components/Cart';
+import { useRouter } from 'next/navigation';
 
 interface MenuItem {
   _id: string;
@@ -28,6 +29,7 @@ interface Shop {
 
 export default function MenuPage({ params }: { params: Promise<{ shopId: string }> }) {
   const { shopId } = use(params); // Unwrap params
+  const router = useRouter();
 
   const [shop, setShop] = useState<Shop | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -95,7 +97,9 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
 
       // Clear cart
       setCartItems([]);
-      alert('Order placed successfully! Order ID: ' + data.orderId);
+      
+      // Redirect to order confirmation page
+      router.push(`/order-confirmation?orderId=${data.order.orderId}&items=${encodeURIComponent(JSON.stringify(cartItems))}&total=${cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}&paymentMethod=${paymentMethod}`);
     } catch (error) {
       console.error('Error placing order:', error);
       alert('Failed to place order. Please try again.');
