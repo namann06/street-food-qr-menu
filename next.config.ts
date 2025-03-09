@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  images: {
+    domains: ['res.cloudinary.com'], // Add Cloudinary for image hosting
   }
 };
 

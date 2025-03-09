@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import Cart from '../../components/Cart';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface MenuItem {
   _id: string;
@@ -11,6 +12,7 @@ interface MenuItem {
   price: number;
   category: string;
   available: boolean;
+  image?: string;
 }
 
 interface CartItem {
@@ -238,14 +240,26 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                   key={item._id}
                   className="bg-stone-900 p-4 rounded-lg flex justify-between items-start"
                 >
-                  <div>
-                    <h3 className="font-medium text-lg">{item.name}</h3>
-                    {item.description && (
-                      <p className="text-beige-400 text-sm mt-1">
-                        {item.description}
-                      </p>
+                  <div className="flex items-start gap-3">
+                    {item.image && (
+                      <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          className="object-cover"
+                          fill
+                        />
+                      </div>
                     )}
-                    <p className="text-orange-400 mt-2">₹{item.price}</p>
+                    <div>
+                      <h3 className="font-medium text-lg">{item.name}</h3>
+                      {item.description && (
+                        <p className="text-beige-400 text-sm mt-1">
+                          {item.description}
+                        </p>
+                      )}
+                      <p className="text-orange-400 mt-2">₹{item.price}</p>
+                    </div>
                   </div>
                   {cartItems.find(cartItem => cartItem._id === item._id) ? (
                     <div className="flex items-center space-x-2 bg-orange-600 rounded-lg px-2">

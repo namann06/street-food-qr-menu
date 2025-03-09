@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { name, description, price, category } = await req.json();
+    const { name, description, price, category, image } = await req.json();
 
     if (!name || !price) {
       return NextResponse.json(
@@ -43,6 +43,7 @@ export async function POST(req: Request) {
       description,
       price,
       category,
+      image, 
       shop: shop._id,
     });
 
@@ -67,7 +68,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    const { id, name, description, price, category, available } = await req.json();
+    const { id, name, description, price, category, available, image } = await req.json();
 
     if (!id || !name || !price) {
       return NextResponse.json(
@@ -91,7 +92,7 @@ export async function PUT(req: Request) {
     // Update menu item
     const menuItem = await MenuItem.findOneAndUpdate(
       { _id: id, shop: shop._id },
-      { name, description, price, category, available },
+      { name, description, price, category, available, image },
       { new: true }
     );
 

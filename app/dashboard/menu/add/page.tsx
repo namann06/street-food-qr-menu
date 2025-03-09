@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function AddMenuItem() {
   const [formData, setFormData] = useState({
@@ -10,12 +11,55 @@ export default function AddMenuItem() {
     price: '',
     category: '',
   });
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Preview the image
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setImageLoading(true);
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      setImageLoading(false);
+      return data.url;
+    } catch (error) {
+      setImageLoading(false);
+      console.error('Error uploading image:', error);
+      throw new Error('Error uploading image');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      let imageUrl = null;
+      
+      if (image) {
+        imageUrl = await uploadImage(image);
+      }
+
       const res = await fetch('/api/menu', {
         method: 'POST',
         headers: {
@@ -24,6 +68,7 @@ export default function AddMenuItem() {
         body: JSON.stringify({
           ...formData,
           price: parseFloat(formData.price),
+          image: imageUrl,
         }),
       });
 
@@ -115,10 +160,41 @@ export default function AddMenuItem() {
             />
           </div>
 
+          {/* Image Upload Section */}
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-400">
+              Food Image (Optional)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+            />
+            
+            {imagePreview && (
+              <div className="mt-2 relative h-40 w-full">
+                <Image 
+                  src={imagePreview} 
+                  alt="Food preview" 
+                  className="rounded-md object-contain"
+                  fill
+                />
+              </div>
+            )}
+            
+            {imageLoading && (
+              <div className="mt-2 text-orange-400">Uploading image...</div>
+            )}
+          </div>
+
           <div className="flex gap-4">
             <button
               type="submit"
-              className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white transition-colors"
+              disabled={imageLoading}
+              className={`bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white transition-colors ${
+                imageLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               Add Item
             </button>

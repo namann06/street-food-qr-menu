@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface MenuItem {
   _id: string;
@@ -12,6 +13,7 @@ interface MenuItem {
   category: string;
   available: boolean;
   shop: string;
+  image?: string;
 }
 
 export default function EditMenuItemPage({
@@ -26,6 +28,9 @@ export default function EditMenuItemPage({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
 
   useEffect(() => {
     const createShopIfNotExists = async () => {
@@ -67,6 +72,10 @@ export default function EditMenuItemPage({
         }
         const data = await res.json();
         setMenuItem(data);
+        // If the menu item has an image, set it as preview
+        if (data.image) {
+          setImagePreview(data.image);
+        }
       } catch (err) {
         console.error(err);
         setError(err instanceof Error ? err.message : 'Error loading menu item');
@@ -80,6 +89,40 @@ export default function EditMenuItemPage({
     }
   }, [session, id]);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Preview the image
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setImageLoading(true);
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      setImageLoading(false);
+      return data.url;
+    } catch (error) {
+      setImageLoading(false);
+      console.error('Error uploading image:', error);
+      throw new Error('Error uploading image');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!menuItem) return;
@@ -88,13 +131,22 @@ export default function EditMenuItemPage({
     setError('');
 
     try {
+      // Handle image upload if there's a new image
+      let imageUrl = menuItem.image;
+      if (image) {
+        imageUrl = await uploadImage(image);
+      }
+
       const res = await fetch(`/api/menu/${menuItem.shop}/items/${menuItem._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(menuItem),
+        body: JSON.stringify({
+          ...menuItem,
+          image: imageUrl
+        }),
       });
 
       if (!res.ok) {
@@ -207,6 +259,32 @@ export default function EditMenuItemPage({
             />
           </div>
 
+          {/* Image Upload Section */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Food Image (Optional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full bg-gray-800 rounded p-2"
+            />
+            
+            {imagePreview && (
+              <div className="mt-2 relative h-40 w-full">
+                <Image 
+                  src={imagePreview} 
+                  alt="Food preview" 
+                  className="rounded-md object-contain"
+                  fill
+                />
+              </div>
+            )}
+            
+            {imageLoading && (
+              <div className="mt-2 text-orange-400">Uploading image...</div>
+            )}
+          </div>
+
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -223,14 +301,16 @@ export default function EditMenuItemPage({
               type="button"
               onClick={() => router.back()}
               className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-              disabled={saving}
+              disabled={saving || imageLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-500"
-              disabled={saving}
+              className={`px-4 py-2 bg-blue-600 rounded hover:bg-blue-500 ${
+                (saving || imageLoading) ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={saving || imageLoading}
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>

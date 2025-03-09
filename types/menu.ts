@@ -11,4 +11,5 @@ export interface MenuItem {
   category: string;
   available: boolean;
   shop: string | ShopReference;
+  image?: string; // Optional URL for food image
 }
