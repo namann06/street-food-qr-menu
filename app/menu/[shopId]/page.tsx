@@ -190,13 +190,26 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
 
         {/* Search and Filter Section */}
         <div className="mb-6 space-y-4">
-          <input
-            type="text"
-            placeholder="Search menu items..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg bg-orange-700 text-black border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search menu items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 pl-5 pr-12 rounded-full bg-orange-700 text-black border-none focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors duration-200"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+              <button 
+                type="submit" 
+                className="p-2 rounded-full bg-black text-white"
+                onClick={() => {/* Search functionality already handled by input onChange */}}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
+          </div>
           
           {/* Category Toggle Button */}
           <button
@@ -242,7 +255,7 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                 >
                   <div className="flex items-start gap-3">
                     {item.image && (
-                      <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
+                      <div className="relative h-24 w-24 rounded-md overflow-hidden flex-shrink-0">
                         <Image
                           src={item.image}
                           alt={item.name}
