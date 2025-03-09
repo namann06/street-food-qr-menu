@@ -196,7 +196,7 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
               placeholder="Search menu items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 pl-5 pr-12 rounded-full bg-orange-700 text-black border-none focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors duration-200"
+              className="w-full px-4 py-3 pl-5 pr-12 rounded-full bg-orange-700 text-white border-none focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors duration-200"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-4">
               <button 
@@ -211,35 +211,26 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
             </div>
           </div>
           
-          {/* Category Toggle Button */}
-          <button
-            onClick={() => setShowCategories(!showCategories)}
-            className="w-full px-4 py-2 rounded-lg bg-stone-800 text-white-300 hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-          >
-            {showCategories ? 'Hide' : 'Filter by Categories'}
-          </button>
-
-          {/* Category List */}
-          {showCategories && (
-            <div className="flex flex-col gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setShowCategories(false); // Hide the list after selection
-                  }}
-                  className={`px-4 py-2 rounded-lg ${
-                    selectedCategory === category
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }`}
-                >
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </button>
-              ))}
+          {/* Category Filter - Zomato Style */}
+          <div className="mt-4">
+            <div className="flex overflow-x-auto pb-2 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex space-x-2">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-200 ${
+                      selectedCategory === category
+                        ? 'bg-orange-500 text-white shadow-md'
+                        : 'bg-stone-800 text-white hover:bg-stone-700'
+                    }`}
+                  >
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {Object.entries(filteredMenuByCategory).map(([category, items]) => (
@@ -275,17 +266,19 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                     </div>
                   </div>
                   {cartItems.find(cartItem => cartItem._id === item._id) ? (
-                    <div className="flex items-center space-x-2 bg-orange-600 rounded-lg px-2">
+                    <div className="flex items-center space-x-2 bg-orange-600 rounded-full px-3 py-1 shadow-md">
                       <button
                         onClick={() => {
                           const currentQuantity = cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0;
                           updateCartItemQuantity(item._id, Math.max(0, currentQuantity - 1));
                         }}
-                        className="text-white hover:text-orange-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
+                        className="text-white hover:text-orange-200 w-7 h-7 flex items-center justify-center text-lg font-semibold rounded-full transition-all duration-200 hover:bg-orange-700"
                       >
-                        -
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
                       </button>
-                      <span className="text-white w-8 text-center">
+                      <span className="text-white w-6 text-center font-medium">
                         {cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0}
                       </span>
                       <button
@@ -293,17 +286,20 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
                           const currentQuantity = cartItems.find(cartItem => cartItem._id === item._id)?.quantity || 0;
                           updateCartItemQuantity(item._id, currentQuantity + 1);
                         }}
-                        className="text-white hover:text-orange-500 w-8 h-8 flex items-center justify-center text-xl font-semibold"
+                        className="text-white hover:text-orange-200 w-7 h-7 flex items-center justify-center text-lg font-semibold rounded-full transition-all duration-200 hover:bg-orange-700"
                       >
-                        +
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
                       </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => addToCart(item)}
-                      className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
+                      className="bg-orange-500 text-white px-4 py-2 rounded-full hover:bg-orange-600 transition-all duration-200 flex items-center space-x-1 shadow-md transform hover:scale-105"
                     >
-                      Add 
+                   
+                      <span>Add</span>
                     </button>
                   )}
                 </div>
