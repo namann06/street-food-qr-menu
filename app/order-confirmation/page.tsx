@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 interface OrderDetails {
   orderId: string;
@@ -10,7 +10,7 @@ interface OrderDetails {
   paymentMethod: string;
 }
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
@@ -81,5 +81,17 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black-900 text-slate-50 flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }
