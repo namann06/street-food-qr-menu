@@ -100,14 +100,14 @@ export default function Dashboard() {
     <div className="min-h-screen bg-black-900 text-white p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Section */}
-        <div className="bg-stone-800 rounded-xl p-6 shadow-md flex justify-between items-center">
+        <div className="bg-stone-800 rounded-2xl p-6 shadow-md flex justify-between items-center">
           <div className="flex-1 flex flex-col items-center text-center">
             <h1 className="text-4xl font-bold text-orange-500">{shop?.name}</h1>
             <p className="text-gray-400 text-sm">{shop?.address}</p>
           </div>
           <Link
             href="/dashboard/menu/add"
-            className="ml-4 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white font-medium text-l transition-all"
+            className="ml-4 bg-orange-500 hover:bg-orange-600 px-5 py-2.5 rounded-full text-white font-medium text-l transition-all duration-300 shadow-md"
           >
             Add Menu Item
           </Link>
@@ -117,7 +117,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Menu Items Section */}
           <div className="lg:col-span-7 flex flex-col">
-            <div className="bg-stone-800 rounded-xl p-6 shadow-md flex-1 flex flex-col">
+            <div className="bg-stone-800 rounded-2xl p-6 shadow-md flex-1 flex flex-col">
               {/* Header with Filters */}
               <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                 <h2 className="text-xl font-semibold text-orange-400 w-full sm:w-auto text-center sm:text-left">
@@ -157,7 +157,7 @@ export default function Dashboard() {
                   .map((item) => (
                     <div
                       key={item._id}
-                      className="bg-stone-900 p-5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-lg transition-all"
+                      className="bg-stone-900 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-lg transition-all"
                     >
                       <div className="flex-1 space-y-1">
                         <h3 className="font-semibold text-lg text-white">{item.name}</h3>
@@ -188,7 +188,7 @@ export default function Dashboard() {
                               console.error('Error updating availability:', error);
                             }
                           }}
-                          className={`px-4 py-2 rounded-md text-white text-sm font-medium transition-all ${
+                          className={`px-4 py-2 rounded-full text-white text-sm font-medium transition-all ${
                             item.available
                               ? 'bg-green-600 hover:bg-green-700'
                               : 'bg-red-600 hover:bg-red-700'
@@ -201,13 +201,13 @@ export default function Dashboard() {
                           <>
                             <button
                               onClick={() => handleDeleteItem(item._id)}
-                              className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-white text-sm transition-all"
+                              className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-full text-white text-sm transition-all"
                             >
                               Confirm
                             </button>
                             <button
                               onClick={() => setShowDeleteConfirm(null)}
-                              className="bg-stone-700 hover:bg-stone-600 px-3 py-2 rounded-md text-white text-sm transition-all"
+                              className="bg-stone-700 hover:bg-stone-600 px-3 py-2 rounded-full text-white text-sm transition-all"
                             >
                               Cancel
                             </button>
@@ -215,7 +215,7 @@ export default function Dashboard() {
                         ) : (
                           <button
                             onClick={() => setShowDeleteConfirm(item._id)}
-                            className="bg-stone-700 hover:bg-stone-600 px-3 py-2 rounded-md text-white text-sm flex items-center transition-all"
+                            className="bg-stone-700 hover:bg-stone-600 p-2 rounded-full text-white text-sm flex items-center justify-center transition-all"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -225,7 +225,7 @@ export default function Dashboard() {
   
                         <Link
                           href={`/dashboard/menu/edit/${item._id}`}
-                          className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md text-white text-sm font-medium transition-all"
+                          className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-full text-white text-sm font-medium transition-all"
                         >
                           Edit
                         </Link>
@@ -251,7 +251,7 @@ export default function Dashboard() {
           {/* Right Column */}
           <div className="lg:col-span-5 grid grid-cols-1 gap-6">
             {/* Orders Section */}
-            <div className="bg-stone-800 rounded-xl p-6 shadow-md flex flex-col">
+            <div className="bg-stone-800 rounded-2xl p-6 shadow-md flex flex-col">
               <h2 className="text-xl font-semibold text-orange-400 mb-4">Orders</h2>
               <div className="overflow-y-auto max-h-[40vh] pr-1 custom-scrollbar">
                 {shop && <OrdersList shopId={shop._id} />}
@@ -259,10 +259,10 @@ export default function Dashboard() {
             </div>
   
             {/* QR Code Section */}
-            <div className="bg-stone-800 rounded-xl p-6 shadow-md flex flex-col">
+            <div className="bg-stone-800 rounded-2xl p-6 shadow-md flex flex-col">
               <h2 className="text-xl font-semibold text-orange-400 mb-4">Menu QR Code</h2>
               <div className="flex flex-col items-center space-y-4">
-                <div className="bg-white p-4 rounded-lg">
+                <div className="bg-white p-4 rounded-2xl">
                   <QRCodeSVG
                     value={`${typeof window !== 'undefined' ? window.location.origin : ''}/menu/${shop?._id}`}
                     size={150}
@@ -274,7 +274,7 @@ export default function Dashboard() {
                 <Link
                   href={`/menu/${shop?._id}`}
                   target="_blank"
-                  className="bg-orange-500 hover:bg-orange-600 px-5 py-3 rounded-lg text-white text-sm font-medium w-full text-center transition-all"
+                  className="bg-orange-500 hover:bg-orange-600 px-5 py-3 rounded-full text-white text-sm font-medium w-full text-center transition-all duration-300 shadow-md"
                 >
                   View Menu
                 </Link>
@@ -304,6 +304,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-  
- 
 }
