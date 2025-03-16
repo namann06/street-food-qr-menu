@@ -166,7 +166,7 @@ export default function EditMenuItemPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-black-900 text-white flex items-center justify-center">
         Loading...
       </div>
     );
@@ -174,7 +174,7 @@ export default function EditMenuItemPage({
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-black-900 text-white flex items-center justify-center">
         Please sign in to access this page.
       </div>
     );
@@ -182,11 +182,11 @@ export default function EditMenuItemPage({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center flex-col">
+      <div className="min-h-screen bg-black-900 text-white flex items-center justify-center flex-col">
         <p className="text-red-500 mb-4">{error}</p>
         <button 
           onClick={() => router.back()}
-          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
+          className="bg-orange-500 hover:bg-orange-600 px-5 py-2.5 rounded-full text-white font-medium transition-all duration-300 shadow-md"
         >
           Go Back
         </button>
@@ -196,31 +196,31 @@ export default function EditMenuItemPage({
 
   if (!menuItem) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-black-900 text-white flex items-center justify-center">
         Menu item not found
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
+    <div className="min-h-screen bg-black-900 text-white p-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Edit Menu Item</h1>
+        <h1 className="text-2xl font-bold mb-6 text-orange-500">Edit Menu Item</h1>
 
         {error && (
-          <div className="bg-red-500 text-white p-3 rounded mb-4">
+          <div className="bg-red-500 text-white p-3 rounded-2xl mb-4">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-stone-800 p-6 rounded-2xl shadow-md">
           <div>
             <label className="block text-sm font-medium mb-1">Name</label>
             <input
               type="text"
               value={menuItem.name}
               onChange={(e) => setMenuItem({ ...menuItem, name: e.target.value })}
-              className="w-full bg-gray-800 rounded p-2"
+              className="w-full bg-stone-900 rounded-full p-3 border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
               required
             />
           </div>
@@ -230,7 +230,7 @@ export default function EditMenuItemPage({
             <textarea
               value={menuItem.description}
               onChange={(e) => setMenuItem({ ...menuItem, description: e.target.value })}
-              className="w-full bg-gray-800 rounded p-2"
+              className="w-full bg-stone-900 rounded-2xl p-3 border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
               rows={3}
             />
           </div>
@@ -241,7 +241,7 @@ export default function EditMenuItemPage({
               type="number"
               value={menuItem.price}
               onChange={(e) => setMenuItem({ ...menuItem, price: Number(e.target.value) })}
-              className="w-full bg-gray-800 rounded p-2"
+              className="w-full bg-stone-900 rounded-full p-3 border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
               required
               min="0"
               step="0.01"
@@ -254,7 +254,7 @@ export default function EditMenuItemPage({
               type="text"
               value={menuItem.category}
               onChange={(e) => setMenuItem({ ...menuItem, category: e.target.value })}
-              className="w-full bg-gray-800 rounded p-2"
+              className="w-full bg-stone-900 rounded-full p-3 border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
               required
             />
           </div>
@@ -266,7 +266,7 @@ export default function EditMenuItemPage({
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="w-full bg-gray-800 rounded p-2"
+              className="w-full bg-stone-900 rounded-full p-3 border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
             
             {imagePreview && (
@@ -274,7 +274,7 @@ export default function EditMenuItemPage({
                 <Image 
                   src={imagePreview} 
                   alt="Food preview" 
-                  className="rounded-md object-contain"
+                  className="rounded-2xl object-contain"
                   fill
                 />
               </div>
@@ -290,7 +290,7 @@ export default function EditMenuItemPage({
               type="checkbox"
               checked={menuItem.available}
               onChange={(e) => setMenuItem({ ...menuItem, available: e.target.checked })}
-              className="mr-2"
+              className="mr-2 accent-orange-500"
               id="available"
             />
             <label htmlFor="available">Available</label>
@@ -300,14 +300,14 @@ export default function EditMenuItemPage({
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+              className="px-5 py-2.5 bg-stone-700 rounded-full hover:bg-stone-600 transition-all duration-300 shadow-md text-white font-medium"
               disabled={saving || imageLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`px-4 py-2 bg-blue-600 rounded hover:bg-blue-500 ${
+              className={`px-5 py-2.5 bg-orange-500 rounded-full hover:bg-orange-600 transition-all duration-300 shadow-md text-white font-medium ${
                 (saving || imageLoading) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               disabled={saving || imageLoading}

@@ -96,11 +96,11 @@ export default function AddMenuItem() {
   return (
     <div className="min-h-screen bg-black-900 text-white p-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-8 text-orange-400">Add Menu Item</h1>
+        <h1 className="text-2xl font-bold mb-8 text-orange-500">Add Menu Item</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-stone-800 p-6 rounded-2xl shadow-md">
           {error && (
-            <div className="bg-red-600 text-white p-3 rounded-md">
+            <div className="bg-red-600 text-white p-3 rounded-2xl">
               {error}
             </div>
           )}
@@ -113,7 +113,7 @@ export default function AddMenuItem() {
               type="text"
               name="name"
               required
-              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+              className="w-full px-4 py-3 bg-stone-900 rounded-full border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500 text-white"
               value={formData.name}
               onChange={handleChange}
             />
@@ -126,7 +126,7 @@ export default function AddMenuItem() {
             <textarea
               name="description"
               rows={3}
-              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+              className="w-full px-4 py-3 bg-stone-900 rounded-2xl border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500 text-white"
               value={formData.description}
               onChange={handleChange}
             />
@@ -141,7 +141,7 @@ export default function AddMenuItem() {
               name="price"
               step="0.01"
               required
-              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+              className="w-full px-4 py-3 bg-stone-900 rounded-full border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500 text-white"
               value={formData.price}
               onChange={handleChange}
             />
@@ -154,7 +154,7 @@ export default function AddMenuItem() {
             <input
               type="text"
               name="category"
-              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+              className="w-full px-4 py-3 bg-stone-900 rounded-full border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500 text-white"
               value={formData.category}
               onChange={handleChange}
             />
@@ -169,7 +169,7 @@ export default function AddMenuItem() {
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="w-full px-3 py-2 bg-stone-800 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+              className="w-full px-4 py-3 bg-stone-900 rounded-full border border-stone-700 focus:outline-none focus:ring-1 focus:ring-orange-500 text-white"
             />
             
             {imagePreview && (
@@ -177,7 +177,7 @@ export default function AddMenuItem() {
                 <Image 
                   src={imagePreview} 
                   alt="Food preview" 
-                  className="rounded-md object-contain"
+                  className="rounded-2xl object-contain"
                   fill
                 />
               </div>
@@ -192,7 +192,7 @@ export default function AddMenuItem() {
             <button
               type="submit"
               disabled={imageLoading}
-              className={`bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white transition-colors ${
+              className={`bg-orange-500 hover:bg-orange-600 px-5 py-2.5 rounded-full text-white font-medium transition-all duration-300 shadow-md ${
                 imageLoading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -201,7 +201,7 @@ export default function AddMenuItem() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="bg-stone-700 hover:bg-stone-600 px-4 py-2 rounded-lg text-white transition-colors"
+              className="bg-stone-700 hover:bg-stone-600 px-5 py-2.5 rounded-full text-white font-medium transition-all duration-300 shadow-md"
             >
               Cancel
             </button>

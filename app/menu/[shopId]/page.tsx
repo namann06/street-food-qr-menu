@@ -242,11 +242,11 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
               {items.map((item) => (
                 <div
                   key={item._id}
-                  className="bg-stone-900 p-4 rounded-lg flex justify-between items-start"
+                  className="bg-stone-900 p-4 rounded-2xl flex justify-between items-start shadow-md"
                 >
                   <div className="flex items-start gap-3">
                     {item.image && (
-                      <div className="relative h-24 w-24 rounded-md overflow-hidden flex-shrink-0">
+                      <div className="relative h-24 w-24 rounded-2xl overflow-hidden flex-shrink-0">
                         <Image
                           src={item.image}
                           alt={item.name}
