@@ -2,22 +2,232 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design System: CSS Custom Properties ────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Background surfaces */
+  --bg-primary: #FAF8F5;
+  --bg-secondary: #FDFCFA;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-muted: #F5F0EB;
+  --bg-subtle: #EDE6DD;
+
+  /* Text colors */
+  --text-primary: #2A2A2A;
+  --text-secondary: #5D5D5D;
+  --text-tertiary: #888888;
+  --text-muted: #B0B0B0;
+  --text-inverse: #FDFCFA;
+
+  /* Accent colors */
+  --accent-primary: #6B9A6B;
+  --accent-primary-hover: #537A53;
+  --accent-primary-light: #E8EFE8;
+  --accent-secondary: #557D5E;
+  --accent-warm: #DF7A4F;
+  --accent-warm-light: #FDF6F3;
+
+  /* Border colors */
+  --border-default: #EDE6DD;
+  --border-subtle: #F5F0EB;
+  --border-strong: #E0D5C8;
+
+  /* Status colors */
+  --status-success: #6B9A6B;
+  --status-warning: #DF7A4F;
+  --status-error: #DC4A4A;
+  --status-info: #5B8DB8;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 8px 16px -4px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Base Layer Reset & Defaults ─────────────────────────────── */
+@layer base {
+  * {
+    @apply border-sand-300/50;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-sand-100 text-charcoal-900 font-sans;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+
+  h1 { @apply text-display-lg font-bold; }
+  h2 { @apply text-display-sm font-semibold; }
+  h3 { @apply text-display-xs font-semibold; }
+  h4 { @apply text-body-xl font-semibold; }
+
+  ::selection {
+    @apply bg-sage-200 text-sage-900;
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    @apply outline-none ring-2 ring-sage-400 ring-offset-2 ring-offset-sand-50;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Component Layer ─────────────────────────────────────────── */
+@layer components {
+  /* Premium card surface */
+  .card {
+    @apply bg-white rounded-2xl shadow-soft-sm border border-sand-200/60;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-2xl shadow-soft-md border border-sand-200/40;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-300 ease-premium
+           hover:shadow-soft-lg hover:-translate-y-0.5;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full
+           text-body-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-sage-100 text-sage-700;
+  }
+
+  .badge-warning {
+    @apply badge bg-terracotta-100 text-terracotta-700;
+  }
+
+  .badge-neutral {
+    @apply badge bg-sand-200 text-charcoal-600;
+  }
+
+  /* Premium button base */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2
+           font-medium rounded-xl
+           transition-all duration-200 ease-premium
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400 focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-sage-600 text-white
+           hover:bg-sage-700 active:bg-sage-800
+           shadow-soft-sm hover:shadow-soft-md;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-charcoal-800
+           border border-sand-300
+           hover:bg-sand-50 hover:border-sand-400
+           shadow-soft-xs;
+  }
+
+  .btn-ghost {
+    @apply btn text-charcoal-600
+           hover:bg-sand-200/60 hover:text-charcoal-900;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-50 text-red-700
+           hover:bg-red-100 border border-red-200/60;
+  }
+
+  .btn-sm {
+    @apply text-body-sm px-3 py-1.5 rounded-lg;
+  }
+
+  .btn-md {
+    @apply text-body-md px-4 py-2.5;
+  }
+
+  .btn-lg {
+    @apply text-body-lg px-6 py-3;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-xl
+           bg-white border border-sand-300
+           text-charcoal-900 placeholder:text-charcoal-400
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-sage-400/40 focus:border-sage-400
+           shadow-inner-soft;
+  }
+
+  /* Section container */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* ─── Utility Layer ───────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+
+  /* Skeleton loading shimmer */
+  .skeleton {
+    @apply relative overflow-hidden bg-sand-200 rounded-xl;
+  }
+
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+}
+
+/* ─── Custom Scrollbar ────────────────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(201, 185, 168, 0.4);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 185, 168, 0.7);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -27,6 +237,6 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
