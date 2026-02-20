@@ -27,7 +27,7 @@
     "lucide-react": "^0.574.0",
     "mongodb": "^6.13.0",
     "mongoose": "^8.10.1",
-    "next": "15.1.7",
+    "next": "15.1.11",
     "next-auth": "^4.24.11",
     "next-cloudinary": "^6.16.0",
     "qrcode.react": "^4.2.0",
