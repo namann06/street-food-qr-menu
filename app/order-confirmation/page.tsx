@@ -2,6 +2,11 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, ArrowLeft, CreditCard, Banknote, Copy, Check } from 'lucide-react';
+
+import { Button, Card, CardContent, Separator, Badge, Skeleton } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 interface OrderDetails {
   orderId: string;
@@ -14,14 +19,14 @@ function OrderConfirmationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Fetch order details from query parameters
     const orderId = searchParams.get('orderId');
     const items = searchParams.get('items');
     const total = searchParams.get('total');
     const paymentMethod = searchParams.get('paymentMethod');
-    
+
     if (orderId && items && total && paymentMethod) {
       setOrderDetails({
         orderId,
@@ -32,65 +37,150 @@ function OrderConfirmationContent() {
     }
   }, [searchParams]);
 
+  const copyOrderId = () => {
+    if (!orderDetails) return;
+    navigator.clipboard.writeText(orderDetails.orderId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (!orderDetails) {
     return (
-      <div className="min-h-screen bg-black-900 text-slate-50 flex items-center justify-center">
-        <p>Loading order details...</p>
+      <div className="min-h-screen bg-sand-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8">
+          <div className="space-y-3">
+            <Skeleton className="h-12 w-12 rounded-full mx-auto" />
+            <Skeleton className="h-5 w-48 mx-auto rounded" />
+            <Skeleton className="h-4 w-32 mx-auto rounded" />
+          </div>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black-900 text-slate-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center space-y-2 mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tight text-orange-500">
-            Order Confirmation
-          </h1>
-          <div className="bg-stone-800 rounded-lg p-6 mt-8">
-            <div className="text-green-400 text-xl mb-4">Order Successfully Placed!</div>
-            <p className="mb-4 text-lg"><span className="font-semibold">Order ID:</span> {orderDetails.orderId}</p>
-            
-            <div className="border-t border-gray-700 my-4 pt-4">
-              <h2 className="font-semibold text-lg mb-2">Order Details:</h2>
-              <ul className="space-y-2">
-                {orderDetails.items.map((item, index) => (
-                  <li key={index} className="flex justify-between">
-                    <span>{item.name} x {item.quantity}</span>
-                    <span>{(item.price * item.quantity).toFixed(2)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="border-t border-gray-700 my-4 pt-4">
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total:</span>
-                <span>{orderDetails.total.toFixed(2)}</span>
-              </div>
-              <p className="mt-2"><span className="font-semibold">Payment Method:</span> {orderDetails.paymentMethod === 'upi' ? 'UPI' : 'Pay at Counter'}</p>
-            </div>
-          </div>
-          
-          <button
-            onClick={() => router.back()}
-            className="mt-6 px-6 py-3 rounded-lg bg-orange-700 text-black hover:bg-orange-600 font-semibold"
+    <div className="min-h-screen bg-sand-50 px-4 py-8 flex flex-col items-center justify-start">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        className="w-full max-w-md"
+      >
+        {/* ─── Success Icon ───────────────────────────────────── */}
+        <div className="text-center mb-6">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.15, type: 'spring', damping: 12, stiffness: 200 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-sage-100 text-sage-600 mb-4"
           >
-            Back to Menu
-          </button>
+            <CheckCircle2 className="w-8 h-8" />
+          </motion.div>
+          <h1 className="text-display-xs font-bold text-charcoal-900 font-display">
+            Order Placed!
+          </h1>
+          <p className="text-body-sm text-charcoal-500 mt-1">
+            Your order has been successfully submitted
+          </p>
         </div>
-      </div>
+
+        {/* ─── Order Card ─────────────────────────────────────── */}
+        <Card>
+          <CardContent className="p-5 space-y-4">
+            {/* Order ID */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-body-xs text-charcoal-400">Order ID</p>
+                <p className="text-body-sm font-semibold text-charcoal-800 font-mono">
+                  #{orderDetails.orderId}
+                </p>
+              </div>
+              <button
+                onClick={copyOrderId}
+                className="p-2 rounded-lg text-charcoal-400 hover:text-charcoal-600 hover:bg-sand-100 transition-colors"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-sage-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+
+            <Separator />
+
+            {/* Items */}
+            <div className="space-y-2">
+              <p className="text-body-xs font-medium text-charcoal-500 uppercase tracking-wider">
+                Items
+              </p>
+              {orderDetails.items.map((item, index) => (
+                <div key={index} className="flex justify-between text-body-sm">
+                  <span className="text-charcoal-700">
+                    <span className="font-medium">{item.quantity}×</span> {item.name}
+                  </span>
+                  <span className="text-charcoal-500 tabular-nums">
+                    ₹{(item.price * item.quantity).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <Separator />
+
+            {/* Total + Payment */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-body-sm font-semibold text-charcoal-800">Total</span>
+                <span className="text-body-lg font-bold text-charcoal-900 tabular-nums">
+                  ₹{orderDetails.total.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" size="sm">
+                  {orderDetails.paymentMethod === 'upi' ? (
+                    <span className="flex items-center gap-1">
+                      <CreditCard className="w-3 h-3" /> UPI
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <Banknote className="w-3 h-3" /> Pay at Counter
+                    </span>
+                  )}
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ─── Back Button ────────────────────────────────────── */}
+        <div className="mt-6">
+          <Button
+            onClick={() => router.back()}
+            variant="outline"
+            className="w-full h-12 rounded-xl"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Menu
+          </Button>
+        </div>
+      </motion.div>
     </div>
   );
 }
 
 export default function OrderConfirmationPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black-900 text-slate-50 flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-sand-50 flex items-center justify-center">
+          <div className="space-y-3 text-center">
+            <Skeleton className="h-12 w-12 rounded-full mx-auto" />
+            <Skeleton className="h-4 w-32 mx-auto rounded" />
+          </div>
+        </div>
+      }
+    >
       <OrderConfirmationContent />
     </Suspense>
   );
