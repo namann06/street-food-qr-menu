@@ -5,13 +5,13 @@ import mongoose from 'mongoose';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { shopId: string } }
+  { params }: { params: Promise<{ shopId: string }> }
 ) {
   try {
     await connectDB();
     
     // Get and await the shopId parameter
-    const { shopId } = params;
+    const { shopId } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(
@@ -40,13 +40,13 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { shopId: string } }
+  { params }: { params: Promise<{ shopId: string }> }
 ) {
   try {
     await connectDB();
     
     // Get and await the shopId parameter
-    const { shopId } = params;
+    const { shopId } = await params;
     
     if (!mongoose.Types.ObjectId.isValid(shopId)) {
       return NextResponse.json(

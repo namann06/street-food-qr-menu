@@ -8,10 +8,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function PUT(
   request: Request,
-  context: { params: { id: string; shopId: string } }
+  context: { params: Promise<{ id: string; shopId: string }> }
 ) {
   // Extract parameters directly from context
-  const { id, shopId: rawShopId } = context.params;
+  const { id, shopId: rawShopId } = await context.params;
 
   console.log('Received PUT request with raw params:', { 
     id, 
@@ -164,10 +164,10 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  context: { params: { id: string; shopId: string } }
+  context: { params: Promise<{ id: string; shopId: string }> }
 ) {
   // Extract parameters directly from context
-  const { id, shopId } = context.params;
+  const { id, shopId } = await context.params;
 
   try {
     await connectDB();

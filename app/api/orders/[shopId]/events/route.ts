@@ -11,10 +11,10 @@ interface NotificationData {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { shopId: string } }
+  { params }: { params: Promise<{ shopId: string }> }
 ) {
   // Get and await the shopId parameter
-  const { shopId } = params;
+  const { shopId } = await params;
 
   // Set up headers for SSE
   const headers = new Headers({

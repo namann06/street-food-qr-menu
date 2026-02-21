@@ -5,9 +5,9 @@ import MenuItem from '@/models/MenuItem';
 
 export async function GET(
   request: Request,
-  context: { params: { shopId: string } }
+  context: { params: Promise<{ shopId: string }> }
 ) {
-  const { shopId } = context.params;
+  const { shopId } = await context.params;
   
   try {
     await connectDB();
