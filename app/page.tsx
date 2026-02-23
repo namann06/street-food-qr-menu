@@ -1,78 +1,187 @@
+'use client';
+
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowRight, QrCode, UtensilsCrossed, ClipboardList } from 'lucide-react';
+
+import { Button, Card, CardContent } from '@/components/ui';
+
+const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
+
+const steps = [
+  {
+    num: '01',
+    icon: ClipboardList,
+    title: 'Register',
+    desc: 'Create an account for your food stall in under a minute.',
+  },
+  {
+    num: '02',
+    icon: UtensilsCrossed,
+    title: 'Add Menu',
+    desc: 'Upload your dishes, prices, and photos — all from your phone.',
+  },
+  {
+    num: '03',
+    icon: QrCode,
+    title: 'Share QR',
+    desc: 'Display your unique QR code and let customers order digitally.',
+  },
+];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black-900 text-white">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-orange-500">
-            Street Food QR Menu
-          </h1>
-          <p className="text-xl md:text-2xl mb-12 text-gray-300">
-            Digital menus for street food vendors
-          </p>
-          
-          <div className="flex flex-col md:flex-row gap-6 justify-center">
-            <Link
-              href="/auth/signin"
-              className="group bg-stone-800 hover:bg-stone-700 text-white font-medium py-4 px-8 rounded-full border border-stone-700 hover:border-orange-500 shadow-lg transition-all duration-300 relative overflow-hidden"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                Vendor Login
-              </span>
-              <div className="absolute inset-0 w-0 bg-gradient-to-r from-orange-500/10 to-orange-500/0 group-hover:w-full transition-all duration-500"></div>
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="group bg-orange-500 hover:bg-orange-600 text-white font-medium py-4 px-8 rounded-full shadow-lg transition-all duration-300 relative overflow-hidden"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                Register Your Shop
-              </span>
-              <div className="absolute bottom-0 left-0 h-1 w-0 bg-white/20 group-hover:w-full transition-all duration-500"></div>
-            </Link>
-          </div>
-
-          <div className="mt-24">
-            <h2 className="text-3xl font-bold mb-10 text-orange-500">How it works</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="p-8 bg-stone-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-stone-700 hover:border-orange-500/30 group">
-                <div className="mb-4 text-orange-500 flex justify-center">
-                  <div className="w-12 h-12 rounded-full bg-stone-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl font-bold">1</span>
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Register</h3>
-                <p className="text-gray-400">Create an account for your food stall</p>
-              </div>
-              <div className="p-8 bg-stone-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-stone-700 hover:border-orange-500/30 group">
-                <div className="mb-4 text-orange-500 flex justify-center">
-                  <div className="w-12 h-12 rounded-full bg-stone-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl font-bold">2</span>
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Add Menu</h3>
-                <p className="text-gray-400">Upload your menu items and prices</p>
-              </div>
-              <div className="p-8 bg-stone-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-stone-700 hover:border-orange-500/30 group">
-                <div className="mb-4 text-orange-500 flex justify-center">
-                  <div className="w-12 h-12 rounded-full bg-stone-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl font-bold">3</span>
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Share QR</h3>
-                <p className="text-gray-400">Display your unique QR code for customers</p>
-              </div>
+    <main className="min-h-screen bg-sand-50">
+      {/* ─── Navbar ─── */}
+      <nav className="fixed top-0 inset-x-0 z-50 bg-sand-50/80 backdrop-blur-md border-b border-sand-200/60">
+        <div className="max-w-5xl mx-auto flex items-center justify-between h-16 px-6">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-sage-100 flex items-center justify-center text-sage-600">
+              <UtensilsCrossed className="w-4 h-4" />
             </div>
+            <span className="font-display font-bold text-charcoal-900 text-body-lg">
+              Servio
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <Link href="/auth/signin">
+              <Button variant="ghost" size="sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/signup">
+              <Button size="sm" className="gap-1.5">
+                Get Started
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
           </div>
         </div>
-      </div>
+      </nav>
+
+      {/* ─── Hero ─── */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease }}
+          >
+            <span className="inline-flex items-center gap-1.5 bg-sage-50 border border-sage-200 text-sage-700 text-body-xs font-medium rounded-full px-3 py-1 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-sage-500" />
+              Digital menus for street food vendors
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.6, ease }}
+            className="text-display-lg md:text-display-xl font-bold font-display text-charcoal-900 leading-tight"
+          >
+            Your menu,{' '}
+            <span className="text-sage-600">one scan</span>{' '}
+            away
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6, ease }}
+            className="mt-5 text-body-lg text-charcoal-500 max-w-xl mx-auto leading-relaxed"
+          >
+            Create a beautiful digital menu, generate a QR code, and let customers browse &amp; order — all without paper or an expensive app.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6, ease }}
+            className="mt-8 flex flex-col sm:flex-row gap-3 justify-center"
+          >
+            <Link href="/auth/signup">
+              <Button size="lg" className="gap-2 w-full sm:w-auto">
+                Register Your Shop
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Link href="/auth/signin">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                Vendor Login
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── How It Works ─── */}
+      <section className="pb-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-display-sm font-bold font-display text-charcoal-900">
+              How it works
+            </h2>
+            <p className="mt-2 text-body-md text-charcoal-500">
+              Three simple steps to go digital
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {steps.map((step, i) => (
+              <motion.div
+                key={step.num}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, duration: 0.5, ease }}
+              >
+                <Card variant="elevated" className="h-full group">
+                  <CardContent className="p-7 text-center space-y-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-sage-50 text-sage-600 group-hover:bg-sage-100 transition-colors">
+                      <step.icon className="w-5 h-5" />
+                    </div>
+
+                    <div>
+                      <span className="text-body-xs font-semibold text-charcoal-300 uppercase tracking-wider">
+                        Step {step.num}
+                      </span>
+                      <h3 className="text-body-lg font-semibold text-charcoal-900 mt-1">
+                        {step.title}
+                      </h3>
+                    </div>
+
+                    <p className="text-body-sm text-charcoal-500 leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Footer ─── */}
+      <footer className="border-t border-sand-200 py-8 px-6">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <p className="text-body-xs text-charcoal-400">
+            &copy; {new Date().getFullYear()} Servio. All rights reserved.
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-sage-100 flex items-center justify-center text-sage-600">
+              <UtensilsCrossed className="w-3 h-3" />
+            </div>
+            <span className="text-body-xs font-medium text-charcoal-500">Servio</span>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
