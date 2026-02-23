@@ -3,15 +3,23 @@
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
+
+import { Button, Input, Card, CardContent, Separator } from '@/components/ui';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       const result = await signIn('credentials', {
         email,
@@ -24,71 +32,100 @@ export default function SignIn() {
       } else {
         router.push('/dashboard');
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred during sign in');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black-900 text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-stone-800 rounded-2xl p-6 shadow-md">
-          <div className="mb-6 text-center">
-            <h2 className="text-3xl font-bold text-orange-500">
-              Sign in to your account
-            </h2>
-            <p className="mt-2 text-gray-400 text-sm">
-              Enter your credentials to access your dashboard
-            </p>
-          </div>
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-500/90 text-white p-4 rounded-lg text-center shadow-sm">
-                {error}
-              </div>
-            )}
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+    <div className="min-h-screen bg-sand-50 flex flex-col items-center justify-center px-4 py-12">
+      {/* Brand */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        className="mb-8 text-center"
+      >
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-sage-100 text-sage-600 mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 2h18v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V2Z" />
+            <path d="M3 8v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8" />
+            <path d="M10 2v6" /><path d="M14 2v6" />
+          </svg>
+        </div>
+        <h1 className="text-display-xs font-bold text-charcoal-900 font-display">
+          Welcome back
+        </h1>
+        <p className="text-body-sm text-charcoal-500 mt-1">
+          Sign in to manage your menu
+        </p>
+      </motion.div>
+
+      {/* Form Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        className="w-full max-w-sm"
+      >
+        <Card>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-body-sm rounded-xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label htmlFor="email" className="text-body-sm font-medium text-charcoal-700">
                   Email
                 </label>
-                <input
+                <Input
                   id="email"
                   type="email"
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-stone-700 bg-stone-900 rounded-full placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your email"
+                  placeholder="you@example.com"
+                  icon={<Mail className="w-4 h-4" />}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
+
+              <div className="space-y-1.5">
+                <label htmlFor="password" className="text-body-sm font-medium text-charcoal-700">
                   Password
                 </label>
-                <input
+                <Input
                   id="password"
                   type="password"
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-stone-700 bg-stone-900 rounded-full placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your password"
+                  placeholder="••••••••"
+                  icon={<Lock className="w-4 h-4" />}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-            </div>
 
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-base font-medium rounded-full text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-sm"
-              >
-                Sign in
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+              <Button type="submit" className="w-full h-11" disabled={loading}>
+                {loading ? 'Signing in…' : 'Sign In'}
+              </Button>
+            </form>
+
+            <Separator className="my-5" />
+
+            <p className="text-center text-body-xs text-charcoal-500">
+              Don&apos;t have an account?{' '}
+              <Link href="/auth/signup" className="font-medium text-sage-600 hover:text-sage-700 transition-colors">
+                Register your shop
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

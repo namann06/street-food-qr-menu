@@ -2,6 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { User, Mail, Lock, Store, MapPin, AlertCircle } from 'lucide-react';
+
+import { Button, Input, Card, CardContent, Separator } from '@/components/ui';
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -12,16 +17,17 @@ export default function SignUp() {
     address: '',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
@@ -34,124 +40,165 @@ export default function SignUp() {
       router.push('/auth/signin');
     } catch (error: any) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div className="min-h-screen bg-black-900 text-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-stone-800 rounded-2xl p-6 shadow-md">
-          <div className="mb-6 text-center">
-            <h2 className="text-3xl font-bold text-orange-500">
-              Register your shop
-            </h2>
-            <p className="mt-2 text-gray-400 text-sm">
-              Create an account to manage your street food menu
-            </p>
-          </div>
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-500/90 text-white p-4 rounded-lg text-center shadow-sm">
-                {error}
-              </div>
-            )}
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
-                  Your Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-stone-700 bg-stone-900 rounded-full placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your full name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-stone-700 bg-stone-900 rounded-full placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your email address"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-stone-700 bg-stone-900 rounded-full placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Create a secure password"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="shopName" className="block text-sm font-medium text-gray-300 mb-1">
-                  Shop Name
-                </label>
-                <input
-                  id="shopName"
-                  name="shopName"
-                  type="text"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-stone-700 bg-stone-900 rounded-full placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your shop name"
-                  value={formData.shopName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-300 mb-1">
-                  Shop Address
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-stone-700 bg-stone-900 rounded-full placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your shop address"
-                  value={formData.address}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-base font-medium rounded-full text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-sm"
-              >
-                Register
-              </button>
-            </div>
-          </form>
+    <div className="min-h-screen bg-sand-50 flex flex-col items-center justify-center px-4 py-12">
+      {/* Brand */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        className="mb-8 text-center"
+      >
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-sage-100 text-sage-600 mb-4">
+          <Store className="w-6 h-6" />
         </div>
-      </div>
+        <h1 className="text-display-xs font-bold text-charcoal-900 font-display">
+          Register your shop
+        </h1>
+        <p className="text-body-sm text-charcoal-500 mt-1">
+          Create an account to manage your menu digitally
+        </p>
+      </motion.div>
+
+      {/* Form Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        className="w-full max-w-sm"
+      >
+        <Card>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-body-sm rounded-xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {error}
+                </div>
+              )}
+
+              {/* Owner Details */}
+              <fieldset className="space-y-3">
+                <legend className="text-body-xs font-semibold text-charcoal-400 uppercase tracking-wider mb-1">
+                  Your Details
+                </legend>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="name" className="text-body-sm font-medium text-charcoal-700">
+                    Full Name
+                  </label>
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    placeholder="John Doe"
+                    icon={<User className="w-4 h-4" />}
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="email" className="text-body-sm font-medium text-charcoal-700">
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="you@example.com"
+                    icon={<Mail className="w-4 h-4" />}
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="password" className="text-body-sm font-medium text-charcoal-700">
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    icon={<Lock className="w-4 h-4" />}
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                </div>
+              </fieldset>
+
+              <Separator />
+
+              {/* Shop Details */}
+              <fieldset className="space-y-3">
+                <legend className="text-body-xs font-semibold text-charcoal-400 uppercase tracking-wider mb-1">
+                  Shop Details
+                </legend>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="shopName" className="text-body-sm font-medium text-charcoal-700">
+                    Shop Name
+                  </label>
+                  <Input
+                    id="shopName"
+                    name="shopName"
+                    type="text"
+                    required
+                    placeholder="Tasty Bites"
+                    icon={<Store className="w-4 h-4" />}
+                    value={formData.shopName}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="address" className="text-body-sm font-medium text-charcoal-700">
+                    Address
+                  </label>
+                  <Input
+                    id="address"
+                    name="address"
+                    type="text"
+                    required
+                    placeholder="123 Food Street"
+                    icon={<MapPin className="w-4 h-4" />}
+                    value={formData.address}
+                    onChange={handleChange}
+                  />
+                </div>
+              </fieldset>
+
+              <Button type="submit" className="w-full h-11 mt-2" disabled={loading}>
+                {loading ? 'Creating account…' : 'Create Account'}
+              </Button>
+            </form>
+
+            <Separator className="my-5" />
+
+            <p className="text-center text-body-xs text-charcoal-500">
+              Already have an account?{' '}
+              <Link href="/auth/signin" className="font-medium text-sage-600 hover:text-sage-700 transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }
