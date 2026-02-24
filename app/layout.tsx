@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, DM_Sans } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import { ToastProvider } from "@/components/ui/Toast";
+import { NavigationProgress } from "@/components/ui/NavigationProgress";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,7 +33,12 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${dmSans.variable}`}>
       <body className="font-sans antialiased">
         <AuthProvider>
-          {children}
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>
