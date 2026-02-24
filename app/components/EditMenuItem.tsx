@@ -1,7 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, AlertCircle, Loader2, UtensilsCrossed, IndianRupee, Tag } from 'lucide-react';
 import { MenuItem } from '@/types/menu';
+
+import { Button, Input, Card, CardContent, Switch, Separator } from '@/components/ui';
 
 interface EditMenuItemProps {
   menuItem: MenuItem;
@@ -9,6 +13,27 @@ interface EditMenuItemProps {
   onClose: () => void;
   onUpdate: (updatedItem: MenuItem) => void;
 }
+
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+const panelVariants = {
+  hidden: { opacity: 0, scale: 0.96, y: 12 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.96,
+    y: 12,
+    transition: { duration: 0.2 },
+  },
+};
 
 export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: EditMenuItemProps) {
   const [formData, setFormData] = useState(menuItem);
@@ -19,6 +44,12 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
     setFormData(menuItem);
   }, [menuItem]);
 
+  // Lock body scroll when open
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!menuItem) return;
@@ -27,42 +58,27 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
     setError('');
 
     try {
-      // Detailed logging of menuItem
-      console.log('Full menuItem object:', JSON.stringify(menuItem, null, 2));
-
-      // Robust shop ID extraction
       let shopId: string;
       if (typeof menuItem.shop === 'string') {
         shopId = menuItem.shop;
       } else if (typeof menuItem.shop === 'object' && menuItem.shop._id) {
         shopId = menuItem.shop._id;
       } else {
-        console.error('Invalid shop object:', menuItem.shop);
         throw new Error('Invalid shop ID');
       }
 
-      // Validate shop ID
       if (!shopId || shopId.trim() === '') {
         throw new Error('Shop ID is empty');
       }
 
-      console.log('Extracted shopId:', shopId);
-
-      // Prepare the request body with explicit shop ID
       const requestBody = {
         ...formData,
-        shop: {
-          _id: shopId
-        }
+        shop: { _id: shopId },
       };
-
-      console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
       const res = await fetch(`/api/menu/${shopId}/items/${menuItem._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(requestBody),
       });
@@ -70,149 +86,173 @@ export default function EditMenuItem({ menuItem, isOpen, onClose, onUpdate }: Ed
       const responseData = await res.json();
 
       if (!res.ok) {
-        console.error('Server error response:', responseData);
         throw new Error(responseData.message || 'Failed to update menu item');
       }
 
-      // Update successful
       onUpdate(responseData);
       onClose();
     } catch (err) {
-      console.error('Full error:', err);
       setError(err instanceof Error ? err.message : 'Error updating menu item');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    // Handle checkbox separately
-    if (type === 'checkbox') {
-      setFormData(prev => ({
-        ...prev,
-        available: (e.target as HTMLInputElement).checked
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'number' ? Number(value) : value
-      }));
-    }
-  };
-
-  if (!isOpen) return null;
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const { name, value, type } = e.target;
+      if (type === 'checkbox') {
+        setFormData(prev => ({ ...prev, available: (e.target as HTMLInputElement).checked }));
+      } else {
+        setFormData(prev => ({ ...prev, [name]: type === 'number' ? Number(value) : value }));
+      }
+    },
+    [],
+  );
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-      <div className="bg-black/90 border border-stone-800 p-8 rounded-xl w-full max-w-md shadow-xl">
-        <h2 className="text-2xl font-bold mb-6 text-white">Edit Menu Item</h2>
-        
-        {error && (
-          <div className="bg-red-950 border border-red-900 text-red-200 px-4 py-3 rounded-lg mb-6" role="alert">
-            <p className="font-medium">{error}</p>
-          </div>
-        )}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="edit-overlay"
+          variants={overlayVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal-900/40 backdrop-blur-sm p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md"
+          >
+            <Card className="shadow-xl">
+              <CardContent className="p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-body-lg font-semibold text-charcoal-900 font-display">
+                    Edit Menu Item
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="p-1.5 rounded-lg text-charcoal-400 hover:text-charcoal-600 hover:bg-sand-100 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-2">Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full bg-black border border-stone-800 rounded-lg py-2.5 px-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-              placeholder="Item name"
-            />
-          </div>
+                {error && (
+                  <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-body-sm rounded-xl px-4 py-3 mb-5">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    {error}
+                  </div>
+                )}
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-2">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={3}
-              className="w-full bg-black border border-stone-800 rounded-lg py-2.5 px-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none"
-              placeholder="Item description"
-            />
-          </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="edit-name" className="text-body-sm font-medium text-charcoal-700">
+                      Name
+                    </label>
+                    <Input
+                      id="edit-name"
+                      name="name"
+                      type="text"
+                      required
+                      placeholder="Item name"
+                      icon={<UtensilsCrossed className="w-4 h-4" />}
+                      value={formData.name}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-200 mb-2">Price</label>
-            <div className="relative">
-              <span className="absolute left-4 top-2.5 text-gray-500">₹</span>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                min="0"
-                step="0.01"
-                className="w-full bg-black border border-stone-800 rounded-lg py-2.5 pl-8 pr-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="edit-description" className="text-body-sm font-medium text-charcoal-700">
+                      Description
+                    </label>
+                    <textarea
+                      id="edit-description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      rows={3}
+                      className="w-full rounded-xl border border-sand-300 bg-white px-4 py-2.5 text-body-sm text-charcoal-900 placeholder:text-charcoal-400 focus:outline-none focus:ring-2 focus:ring-sage-500/30 focus:border-sage-400 transition-all resize-none"
+                      placeholder="Short description"
+                    />
+                  </div>
 
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-200 mb-2">Category</label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full bg-black border border-stone-800 rounded-lg py-2.5 px-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-              placeholder="e.g., Starters, Main Course"
-            />
-          </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label htmlFor="edit-price" className="text-body-sm font-medium text-charcoal-700">
+                        Price
+                      </label>
+                      <Input
+                        id="edit-price"
+                        name="price"
+                        type="number"
+                        required
+                        min={0}
+                        step={0.01}
+                        placeholder="0.00"
+                        icon={<IndianRupee className="w-4 h-4" />}
+                        value={formData.price}
+                        onChange={handleChange}
+                      />
+                    </div>
 
-          <div className="flex items-center">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                name="available"
-                checked={formData.available}
-                onChange={handleChange}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-stone-800 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-500/25 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-              <span className="ms-3 text-sm font-medium text-gray-200">Available</span>
-            </label>
-          </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="edit-category" className="text-body-sm font-medium text-charcoal-700">
+                        Category
+                      </label>
+                      <Input
+                        id="edit-category"
+                        name="category"
+                        type="text"
+                        placeholder="e.g. Starters"
+                        icon={<Tag className="w-4 h-4" />}
+                        value={formData.category}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
 
-          <div className="flex justify-end space-x-4 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={saving}
-              className="px-5 py-2.5 bg-transparent border border-stone-800 text-white rounded-lg hover:bg-stone-900 transition-colors disabled:opacity-50"
-            >
-              Cancelll
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-5 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[100px]"
-            >
-              {saving ? (
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : 'Save Changes'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+                  <Separator />
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-sm font-medium text-charcoal-700">Available</span>
+                    <Switch
+                      checked={formData.available}
+                      onCheckedChange={(checked) =>
+                        setFormData(prev => ({ ...prev, available: checked }))
+                      }
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={onClose}
+                      disabled={saving}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="flex-1 gap-2" disabled={saving}>
+                      {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {saving ? 'Saving…' : 'Save Changes'}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
