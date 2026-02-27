@@ -31,14 +31,14 @@ A modern, mobile-first digital menu and ordering system designed for street food
 
 ## 📸 Screenshots
 
-![image](https://github.com/user-attachments/assets/99e62f0b-7e0c-417b-ae65-85d310ab4be6)
-![image](https://github.com/user-attachments/assets/419f60c8-788b-4145-b58e-a1f54d1ba9dd)
-![image](https://github.com/user-attachments/assets/e0653f92-7f32-4362-854f-dc1896e44828)
 
 
+
+<img width="1847" height="898" alt="Screenshot 2026-02-27 182318" src="https://github.com/user-attachments/assets/40bc3257-b6bd-4d7d-80d0-a6f6c8a84f05" />
 
 
 ---
+<img width="1887" height="901" alt="Screenshot 2026-02-27 182446" src="https://github.com/user-attachments/assets/f4876ce2-1cb0-4c5f-bdd0-33eee4fdd00c" />
 
 ## Project Structure
 
