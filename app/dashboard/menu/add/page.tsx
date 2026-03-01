@@ -46,6 +46,12 @@ export default function AddMenuItem() {
   };
 
   const uploadImage = async (file: File) => {
+    // Validate file size (max 10MB)
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      throw new Error('Image is too large. Maximum size is 10MB.');
+    }
+
     const formData = new FormData();
     formData.append('file', file);
 
@@ -54,15 +60,19 @@ export default function AddMenuItem() {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
-      if (!response.ok) throw new Error('Failed to upload image');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Upload failed (${response.status})`);
+      }
       const data = await response.json();
       setImageLoading(false);
       return data.url;
     } catch (error) {
       setImageLoading(false);
       console.error('Error uploading image:', error);
-      throw new Error('Error uploading image');
+      throw error instanceof Error ? error : new Error('Error uploading image');
     }
   };
 
