@@ -10,7 +10,12 @@ const nextConfig: NextConfig = {
   },
   images: {
     domains: ['res.cloudinary.com'], // Add Cloudinary for image hosting
-  }
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 };
 
 export default nextConfig;
