@@ -4,7 +4,7 @@ import connectDB from '@/lib/mongodb';
 import MenuItem from '@/models/MenuItem';
 import Shop from '@/models/Shop';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 export async function PUT(
   request: Request,
@@ -81,19 +81,28 @@ export async function PUT(
       description = '', 
       price = 0, 
       category = '', 
-      available = false 
+      available = false,
+      image
     } = body;
+
+    // Build update object
+    const updateData: Record<string, unknown> = {
+      name,
+      description,
+      price,
+      category,
+      available,
+    };
+
+    // Only set image if provided (allow unsetting with empty string)
+    if (image !== undefined) {
+      updateData.image = image || undefined;
+    }
 
     // Find and update menu item
     const updatedMenuItem = await MenuItem.findOneAndUpdate(
       { _id: id, shop: shopId },
-      {
-        name,
-        description,
-        price,
-        category,
-        available
-      },
+      updateData,
       { new: true }
     );
 

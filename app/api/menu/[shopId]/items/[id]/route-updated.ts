@@ -4,7 +4,7 @@ import connectDB from '@/lib/mongodb';
 import MenuItem from '@/models/MenuItem';
 import Shop from '@/models/Shop';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 export async function PUT(
   request: Request,
