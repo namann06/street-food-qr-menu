@@ -1,6 +1,6 @@
-# Street Food QR Menu 🍜📱
+# SERVIO🍜📱
 
-A modern, mobile-first digital menu and ordering system designed for street food vendors. Customers can scan a QR code to browse the menu and place orders in real time, while vendors manage orders and updates from a secure dashboard.
+A modern, mobile-first digital menu and ordering system designed for restaurant. Customers can scan a QR code to browse the menu and place orders in real time, while vendors manage orders and updates from a secure dashboard.
 
 ### 🌐 Live Demo
 [Visit Live Site](https://street-food-qr-menu.vercel.app)
