@@ -84,30 +84,50 @@ export default function MenuPage({ params }: { params: Promise<{ shopId: string 
     setCartItems(prevItems => prevItems.filter(item => item._id !== itemId));
   };
 
-  const handleCheckout = async (paymentMethod: 'upi' | 'counter', tableNumber: string) => {
+  const handleCheckout = async (paymentMethod: 'online' | 'counter', tableNumber: string) => {
     try {
+      const orderTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      // Place order in our DB first
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           shopId,
           items: cartItems,
-          total: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+          total: orderTotal,
           tableNumber,
           paymentMethod,
         }),
       });
-
       if (!response.ok) throw new Error('Failed to place order');
       const data = await response.json();
+      const internalOrderId = data.order.orderId;
 
-      if (paymentMethod === 'upi' && shop?.upiId) {
-        window.location.href = `upi://pay?pa=${shop.upiId}&pn=${shop.name}&am=${cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)}&tn=Order%20Payment`;
+      if (paymentMethod === 'online') {
+        // Create Stripe Checkout session and redirect
+        const stripeRes = await fetch('/api/payment/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: orderTotal, orderId: internalOrderId, shopId }),
+        });
+        if (!stripeRes.ok) throw new Error('Failed to create payment session');
+        const { url } = await stripeRes.json();
+
+        // Save cart to sessionStorage so confirmation page can show items
+        sessionStorage.setItem('orderItems', JSON.stringify(cartItems));
+        sessionStorage.setItem('orderTotal', String(orderTotal));
+
+        setCartItems([]);
+        // Redirect to Stripe Checkout
+        window.location.href = url;
+        return;
       }
 
+      // Counter payment
       setCartItems([]);
       router.push(
-        `/order-confirmation?orderId=${data.order.orderId}&items=${encodeURIComponent(JSON.stringify(cartItems))}&total=${cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)}&paymentMethod=${paymentMethod}`
+        `/order-confirmation?orderId=${internalOrderId}&items=${encodeURIComponent(JSON.stringify(cartItems))}&total=${orderTotal}&paymentMethod=${paymentMethod}`
       );
     } catch (error) {
       console.error('Error placing order:', error);
