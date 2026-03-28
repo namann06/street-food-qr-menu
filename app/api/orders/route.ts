@@ -69,9 +69,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!paymentMethod || !['upi', 'counter'].includes(paymentMethod)) {
+    if (!paymentMethod || !['online', 'counter'].includes(paymentMethod)) {
       return NextResponse.json(
-        { error: 'Valid payment method (upi or counter) is required' },
+        { error: 'Valid payment method (online or counter) is required' },
         { status: 400 }
       );
     }
@@ -97,11 +97,14 @@ export async function POST(request: Request) {
       status: 'pending'
     });
 
-    // Notify connected clients about the new order
-    notifyShopClients(shopId, {
-      type: 'new_order',
-      order
-    });
+    // Only notify the shop immediately for counter payments.
+    // Online payments will notify after successful payment verification.
+    if (paymentMethod === 'counter') {
+      notifyShopClients(shopId, {
+        type: 'new_order',
+        order
+      });
+    }
 
     return NextResponse.json({ order });
   } catch (error) {
