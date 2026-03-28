@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Button, Input, Separator, Badge } from '@/components/ui';
+import { useToast } from '@/components/ui/Toast';
 import { cn } from '@/lib/utils';
 
 interface CartItem {
@@ -26,7 +27,7 @@ interface CartProps {
   total: number;
   onRemoveItem: (id: string) => void;
   onUpdateQuantity: (id: string, quantity: number) => void;
-  onCheckout: (paymentMethod: 'upi' | 'counter', tableNumber: string) => void;
+  onCheckout: (paymentMethod: 'online' | 'counter', tableNumber: string) => void;
   shopUpiId?: string;
 }
 
@@ -58,15 +59,16 @@ export default function Cart({
   shopUpiId,
 }: CartProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'counter'>('counter');
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'counter'>('counter');
   const [tableNumber, setTableNumber] = useState('');
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+  const { toast } = useToast();
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   const handleProceedToPayment = () => {
     if (!tableNumber) {
-      alert('Please enter your table number');
+      toast('Please enter your table number', 'error');
       return;
     }
     setShowPaymentOptions(true);
@@ -275,17 +277,17 @@ export default function Cart({
                             </span>
                           </button>
                           <button
-                            onClick={() => setPaymentMethod('upi')}
+                            onClick={() => setPaymentMethod('online')}
                             className={cn(
                               'flex flex-col items-center gap-1.5 p-4 rounded-xl border-2 transition-all',
-                              paymentMethod === 'upi'
+                              paymentMethod === 'online'
                                 ? 'border-sage-500 bg-sage-50 text-sage-700'
                                 : 'border-sand-200 bg-white text-charcoal-500 hover:border-sand-300'
                             )}
                           >
                             <CreditCard className="w-5 h-5" />
                             <span className="text-body-xs font-medium">
-                              Pay via UPI
+                              Pay Online
                             </span>
                           </button>
                         </div>
