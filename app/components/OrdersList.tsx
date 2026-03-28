@@ -28,7 +28,7 @@ interface Order {
   items: OrderItem[];
   total: number;
   tableNumber: string;
-  paymentMethod: 'upi' | 'counter';
+  paymentMethod: 'online' | 'counter';
   status: 'pending' | 'completed' | 'cancelled';
   createdAt: string;
 }
@@ -215,9 +215,9 @@ export default function OrdersList({ shopId }: OrdersListProps) {
                         ₹{order.total}
                       </span>
                       <Badge variant="outline" size="sm">
-                        {order.paymentMethod === 'upi' ? (
+                        {order.paymentMethod === 'online' ? (
                           <span className="flex items-center gap-1">
-                            <CreditCard className="w-3 h-3" /> UPI
+                            <CreditCard className="w-3 h-3" /> Online
                           </span>
                         ) : (
                           <span className="flex items-center gap-1">

@@ -11,7 +11,10 @@ export interface IOrder {
   }>;
   total: number;
   tableNumber: string;
-  paymentMethod: 'upi' | 'counter';
+  paymentMethod: 'online' | 'counter';
+  paymentStatus: 'pending' | 'paid' | 'failed';
+  stripeSessionId?: string;
+  stripePaymentIntentId?: string;
   status: 'pending' | 'completed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
@@ -49,8 +52,21 @@ const OrderSchema = new mongoose.Schema<IOrder, OrderModel>({
   },
   paymentMethod: {
     type: String,
-    enum: ['upi', 'counter'],
+    enum: ['online', 'counter'],
     required: true
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'paid', 'failed'],
+    default: 'pending'
+  },
+  stripeSessionId: {
+    type: String,
+    sparse: true
+  },
+  stripePaymentIntentId: {
+    type: String,
+    sparse: true
   },
   status: {
     type: String,
@@ -102,6 +118,11 @@ OrderSchema.statics.generateOrderId = async function() {
 // Add index for better performance
 OrderSchema.index({ shopId: 1, createdAt: -1 });
 
-const Order = mongoose.models.Order as OrderModel || mongoose.model<IOrder, OrderModel>('Order', OrderSchema);
+// Delete cached model to pick up schema changes during hot-reload
+if (mongoose.models.Order) {
+  delete mongoose.models.Order;
+}
+
+const Order = mongoose.model<IOrder, OrderModel>('Order', OrderSchema);
 
 export default Order;
